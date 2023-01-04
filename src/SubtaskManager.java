@@ -16,7 +16,6 @@ public class SubtaskManager extends EpicManager {
         id++;
         return id - 1;
     }
-
     // Получение Subtask задачи по идентификатору
     public String getSubtaskById(int epicId, int subtaskId) {
         if (!epicsList.containsKey(epicId)) return "Задача не найдена!";

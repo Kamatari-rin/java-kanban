@@ -1,20 +1,20 @@
 public class Subtask extends Task {
-    private int epicId; // Epic id
-    private int priority;
+    private int epicID;
+    private int taskPriority;
 
-    public Subtask(String name, String description, int id, Status status, int epicId, int priority) {
-        super(name, description, id, status);
-        this.epicId = epicId;
-        this.priority = priority;
+    public Subtask(String taskName, String taskDescription, TaskType taskType, Status taskStatus, int epicID, int taskPriority) {
+        super(taskName, taskDescription, taskType, taskStatus);
+        this.epicID = epicID;
+        this.taskPriority = taskPriority;
     }
 
     @Override
     public String toString() {
-        return " Подзадача " + priority + ": "  + name + " | Описание: " + description + " | Статус: " + status
+        return " Подзадача " + taskPriority + ": "  + taskName + " | Описание: " + taskDescription + " | Статус: " + taskStatus
                 + "\n----------------------------------------------------------------------------\n";
     }
 
     public int getPriority() {
-        return priority;
+        return taskPriority;
     }
 }

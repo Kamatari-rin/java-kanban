@@ -6,15 +6,15 @@ public class Epic extends Task{
     private HashMap subtaskList;
     private boolean isAllSubTaskIsDone;
 
-    public Epic(String name, String description, Status status, int id, HashMap subtaskList, boolean isAllSubTaskIsDone) {
-        super(name, description, id, status);
+    public Epic(String taskName, String taskDescription, TaskType taskType, Status taskStatus, HashMap subtaskList, boolean isAllSubTaskIsDone) {
+        super(taskName, taskDescription, taskType, taskStatus);
         this.subtaskList = subtaskList;
         this.isAllSubTaskIsDone = isAllSubTaskIsDone;
     }
-    // Пытался убрать из вывода ключи HashMap (1=, 2=, ...), но так и не понял как это сделать(.
+
     @Override
     public String toString() {
-        return "\nЗадача: "  + name + "\nОписание: " + description + "\nСтатус: " + status + "\nСписок подзадач:\n"
+        return "\nЗадача: "  + taskName + "\nОписание: " + taskDescription + "\nСтатус: " + taskStatus + "\nСписок подзадач:\n"
                 + subtaskList.toString()
                 .replaceAll("^\\[|\\]$", "")
                 .replaceAll(",", "")

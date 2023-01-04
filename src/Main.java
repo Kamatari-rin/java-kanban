@@ -1,32 +1,19 @@
+import java.util.HashMap;
+
 public class Main {
 
     public static void main(String[] args) {
 
         TaskManager taskManager = new TaskManager();
-        EpicManager epicManager = new EpicManager();
-        SubtaskManager subtaskManager = new SubtaskManager();
+        Task task = new Task("Task_1", "Task_1 Description", Task.TaskType.TASK, Task.Status.NEW);
+        Epic epic = new Epic("Epic_1", "Epic_1 Description", Task.TaskType.EPIC, Task.Status.NEW,
+                new HashMap<Integer, Subtask>(), false);
+        Subtask subtaskOne = new Subtask("Subtask_1", "Subtask_1 Description", Task.TaskType.SUBTASK, Task.Status.NEW, 2, 1);
+        Subtask subtaskTwo = new Subtask("Subtask_2", "Subtask_2 Description", Task.TaskType.SUBTASK, Task.Status.NEW, 2, 2);
 
-        epicManager.createEpic("Сходить в магазин", "купить продукты");
-        subtaskManager.createSubTask("Купить молоко", "жирность 3%", 1, 1);
-        subtaskManager.createSubTask("Купить хлеба", "черный резанный%", 1, 2);
-        subtaskManager.createSubTask("Купить чипсы", "Lays сметана и лук", 1, 3);
-
-        taskManager.createTask("Убраться на столе", "Вытереть пыль и убрать лишнее.");
-        taskManager.createTask("Почистить компьютер", "Помыть фильтры и протереть пыль.");
-
-
-//        System.out.println(taskManager.getTaskById(5));
-
-//         epicManager.deleteAllTasks();
-//         epicManager.deleteEpicById(1);
-//         epicManager.deleteAllSubtaskInEpic(1)
-//         subtaskManager.deleteSubtaskById(1, 3);
-//         subtaskManager.updateSubtaskStatus(1, 2, Task.Status.DONE);
-//         subtaskManager.updateSubtaskStatus(1, 3, Task.Status.DONE);
-//         subtaskManager.updateSubtaskStatus(1, 4, Task.Status.DONE);
-
-//         System.out.println(epicManager.getEpicById(1));
-         System.out.println(epicManager.getAllEpics());
-//         System.out.println(subtaskManager.getSubtaskById(1, 3));
+        taskManager.createTask(task);
+        taskManager.createTask(epic);
+        taskManager.createTask(subtaskOne);
+        taskManager.createTask(subtaskTwo);
     }
 }
