@@ -1,21 +1,16 @@
 import java.util.HashMap;
+import java.util.Objects;
 
 public class Task {
 
     protected String taskName;
     protected String taskDescription;
-    protected TaskType taskType;
     protected Status taskStatus;
     protected int taskID;
-    private int epicID;
-    private int taskPriority;
-    private HashMap subtaskList;
-    private boolean isAllSubTaskIsDone;
 
-    public Task(String taskName, String taskDescription, TaskType taskType, Status taskStatus) {
+    public Task(String taskName, String taskDescription, Status taskStatus) {
         this.taskName = taskName;
         this.taskDescription = taskDescription;
-        this.taskType = taskType;
         this.taskStatus = taskStatus;
     }
 
@@ -27,14 +22,41 @@ public class Task {
         return taskID;
     }
 
+    public void setTaskStatus(Status taskStatus) {
+        this.taskStatus = taskStatus;
+    }
+
+    public Status getTaskStatus() {
+        return taskStatus;
+    }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "taskName='" + taskName + '\'' +
+                ", taskDescription='" + taskDescription + '\'' +
+                ", taskStatus=" + taskStatus +
+                ", taskID=" + taskID +
+                '}';
+    }
+
     protected enum Status {
         NEW,
         IN_PROGRESS,
         DONE
     }
-    protected enum TaskType {
-        TASK,
-        EPIC,
-        SUBTASK
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Task otherTask = (Task) obj;
+        return Objects.equals(taskName, otherTask.taskName)
+                && Objects.equals(taskDescription, otherTask.taskDescription)
+                && taskStatus == otherTask.taskStatus;
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(taskName, taskDescription, taskStatus);
     }
 }

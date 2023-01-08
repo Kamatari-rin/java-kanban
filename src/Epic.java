@@ -3,34 +3,24 @@ import java.util.HashMap;
 import java.util.Objects;
 
 public class Epic extends Task{
-    private HashMap subtaskList;
-    private boolean isAllSubTaskIsDone;
+    private ArrayList subtaskList = new ArrayList();
 
-    public Epic(String taskName, String taskDescription, TaskType taskType, Status taskStatus, HashMap subtaskList, boolean isAllSubTaskIsDone) {
-        super(taskName, taskDescription, taskType, taskStatus);
-        this.subtaskList = subtaskList;
-        this.isAllSubTaskIsDone = isAllSubTaskIsDone;
+    public Epic(String taskName, String taskDescription) {
+        super(taskName, taskDescription, Status.NEW);
     }
 
     @Override
     public String toString() {
-        return "\nЗадача: "  + taskName + "\nОписание: " + taskDescription + "\nСтатус: " + taskStatus + "\nСписок подзадач:\n"
-                + subtaskList.toString()
-                .replaceAll("^\\[|\\]$", "")
-                .replaceAll(",", "")
-                .replace("{", " ")
-                .replace("}", "");
+        return "\nЗадача: "  + taskName + "\nОписание: " + taskDescription + "\nСтатус: " + taskStatus + "\nСписок подзадач:"
+                + subtaskList.toString();
     }
 
-    public boolean isAllSubTaskIsDone() {
-        return isAllSubTaskIsDone;
-    }
-
-    public void setAllSubTaskIsDone(boolean allSubTaskIsDone) {
-        isAllSubTaskIsDone = allSubTaskIsDone;
-    }
-
-    public HashMap getSubtaskList() {
+    public ArrayList getSubtaskList() {
         return subtaskList;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), subtaskList);
     }
 }
