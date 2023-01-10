@@ -2,17 +2,10 @@ import java.util.Objects;
 
 public class Subtask extends Task {
     private int epicID;
-    private int taskPriority;
 
-    public Subtask(String taskName, String taskDescription, Status taskStatus, int epicID, int taskPriority) {
+    public Subtask(String taskName, String taskDescription, Status taskStatus, int epicID) {
         super(taskName, taskDescription, taskStatus);
         this.epicID = epicID;
-        this.taskPriority = taskPriority;
-    }
-
-
-    public int getPriority() {
-        return taskPriority;
     }
 
     public int getEpicID() {
@@ -21,18 +14,17 @@ public class Subtask extends Task {
 
     @Override
     public int hashCode() {
-        return Objects.hash(taskName, taskDescription, taskStatus, taskPriority);
+        return Objects.hash(taskName, taskDescription, taskStatus);
     }
 
     @Override
     public String toString() {
         return "Subtask{" +
-                "epicID=" + epicID +
-                ", taskPriority=" + taskPriority +
+                "epicID=" + epicID  +
                 ", taskName='" + taskName + '\'' +
                 ", taskDescription='" + taskDescription + '\'' +
                 ", taskStatus=" + taskStatus +
                 ", taskID=" + taskID +
-                '}';
+                '}'+"\n";
     }
 }

@@ -37,7 +37,7 @@ public class Task {
                 ", taskDescription='" + taskDescription + '\'' +
                 ", taskStatus=" + taskStatus +
                 ", taskID=" + taskID +
-                '}';
+                '}' +"\n";
     }
 
     protected enum Status {
@@ -59,4 +59,6 @@ public class Task {
     public int hashCode() {
         return Objects.hash(taskName, taskDescription, taskStatus);
     }
+
+    // GX16 Авиатор 17, Термоусадочная трубка Черная,
 }

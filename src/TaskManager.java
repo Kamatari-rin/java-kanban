@@ -15,7 +15,7 @@ public class TaskManager {
         SUBTASK
     }
 
-    private   int id = 0;
+    private int id = 0;
 
     //----------------------------------------------|          |------------------------------------------------------//
     //----------------------------------------------|   Task   |------------------------------------------------------//
@@ -23,7 +23,6 @@ public class TaskManager {
 
     // Создание объекта Task
     public int createTask(Task task) {
-        if (isTaskExists(task)) return 0;
         task.setTaskID(++id);
         tasksMap.put(task.getTaskID(), task);
         allTasksMap.put(task.getTaskID(), TaskType.TASK);
@@ -31,8 +30,12 @@ public class TaskManager {
     }
 
     // Получение списка задач Task
-    public Map getAllTask() {
-        return tasksMap;
+    // По ТЗ вообще не понятно было что нужно возвращать.
+    // Почему возвращать Map является плохой практикой?
+    // Не понял что вы имели ввиду под заданием параметров для возвращаемой Map, как можно задать параметры?
+    public HashMap getAllTask() {
+        HashMap<Integer, Task> printTaskMap = (HashMap<Integer, Task>) tasksMap;
+        return printTaskMap;
     }
 
     // Получение задачи по идентификатору
@@ -69,21 +72,12 @@ public class TaskManager {
         return true;
     }
 
-    private boolean isTaskExists(Task task) {
-        for (Integer taskID : tasksMap.keySet()) {
-            Task bufTask = tasksMap.get(taskID);
-            if (bufTask.equals(task)) return true;
-        }
-        return false;
-    }
-
     //----------------------------------------------|          |------------------------------------------------------//
     //----------------------------------------------|   Epic   |------------------------------------------------------//
     //----------------------------------------------|          |------------------------------------------------------//
 
     // Создание объекта Epic
     public int createEpic(Epic epic) {
-        if (isEpicExists(epic)) return 0;
         epic.setTaskID(++id);
         epicsMap.put(epic.getTaskID(), epic);
         allTasksMap.put(epic.getTaskID(), TaskType.EPIC);
@@ -109,14 +103,14 @@ public class TaskManager {
     public boolean deleteEpicById(int id) {
         if (epicsMap.containsKey(id)) {
             Epic bufEpic = epicsMap.get(id);
-            ArrayList subtaskList = bufEpic.getSubtaskList();
-            for (Object SubtaskID : subtaskList) {
-                subtaskList.remove(SubtaskID);
+            ArrayList<Integer> subtaskList = (ArrayList<Integer>) bufEpic.getSubtaskList();
+
+            for (Integer SubtaskID : subtaskList) {
                 allTasksMap.remove(SubtaskID);
+                subtasksMap.remove(SubtaskID);
             }
 
             epicsMap.remove(id);
-            allTasksMap.remove(id);
             return true;
         }
         return false;
@@ -126,9 +120,9 @@ public class TaskManager {
     public boolean deleteAllSubtaskInEpic(int id) {
         if (epicsMap.containsKey(id)) {
             Epic bufEpic = epicsMap.get(id);
-            ArrayList subtaskList = bufEpic.getSubtaskList();
-            for (Object SubtaskID : subtaskList) {
-                subtaskList.remove(SubtaskID);
+            ArrayList<Integer> subtaskList = (ArrayList<Integer>) bufEpic.getSubtaskList();
+            for (Integer SubtaskID : subtaskList) {
+                subtasksMap.remove(SubtaskID);
                 allTasksMap.remove(SubtaskID);
                 return  true;
             }
@@ -139,7 +133,6 @@ public class TaskManager {
     // Обновление Epic
     public boolean updateEpic(Epic epic, int oldEpicID) {
         if (!epicsMap.containsKey(oldEpicID)) return false;
-        if (isEpicExists(epic)) return false;
 
         epic.setTaskID(oldEpicID);
         epicUpdateStatus(epic);
@@ -193,16 +186,9 @@ public class TaskManager {
     }
 
     // Получение списка Epic задач
-    public Map getAllEpic() {
-        return epicsMap;
-    }
-
-    private boolean isEpicExists(Epic epic) {
-        for (Integer epicID : epicsMap.keySet()) {
-            Epic bufEpic = epicsMap.get(epicID);
-            if(bufEpic.equals(epic)) return true;
-        }
-        return false;
+    public HashMap getAllEpic() {
+        HashMap<Integer, Epic> printEpicsMap = (HashMap<Integer, Epic>) epicsMap;
+        return printEpicsMap;
     }
 
     //---------------------------------------------|             |----------------------------------------------------//
@@ -211,7 +197,6 @@ public class TaskManager {
 
     // Создание объекта Subtask
     public int createSubtask(Subtask subtask) {
-        if (isSubtaskExists(subtask)) return 0;
         subtask.setTaskID(++id);
         Epic bufEpic = epicsMap.get(subtask.getEpicID());
         ArrayList<Integer> epicTaskList = bufEpic.getSubtaskList();
@@ -220,14 +205,6 @@ public class TaskManager {
         subtasksMap.put(subtask.getTaskID(), subtask);
         allTasksMap.put(subtask.getTaskID(), TaskType.SUBTASK);
         return subtask.getTaskID();
-    }
-
-    private boolean isSubtaskExists(Subtask subtask) {
-        for (Integer subtaskID : subtasksMap.keySet()) {
-            Subtask bufSubtask = subtasksMap.get(subtaskID);
-            if(bufSubtask.equals(subtask)) return true;
-        }
-        return false;
     }
 
     // Получение Subtask задачи по идентификатору
@@ -273,7 +250,8 @@ public class TaskManager {
     }
 
     // Получение все Subtask
-    public Map getAllSubtask() {
-        return subtasksMap;
+    public HashMap getAllSubtask() {
+        HashMap<Integer, Subtask> printSubtasksMap = (HashMap<Integer, Subtask>) subtasksMap;
+        return printSubtasksMap;
     }
 }
