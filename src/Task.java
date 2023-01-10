@@ -1,4 +1,3 @@
-import java.util.HashMap;
 import java.util.Objects;
 
 public class Task {
@@ -59,6 +58,4 @@ public class Task {
     public int hashCode() {
         return Objects.hash(taskName, taskDescription, taskStatus);
     }
-
-    // GX16 Авиатор 17, Термоусадочная трубка Черная,
 }
