@@ -1,5 +1,7 @@
+import history.HistoryManager;
 import managers.InMemoryTaskManager;
 import managers.TaskManager;
+import history.InMemoryHistoryManager;
 import objects.Epic;
 import objects.Subtask;
 import objects.Task;
@@ -9,6 +11,8 @@ public class Main {
     public static void main(String[] args) {
 
         TaskManager taskManager = new InMemoryTaskManager();
+        HistoryManager historyManager = new InMemoryHistoryManager();
+
         Task taskOne = new Task("Task_1", "Task_1 Description", Task.Status.NEW);
         Task taskTwo = new Task("Task_2", "Task_2 Description", Task.Status.NEW);
 
@@ -51,19 +55,28 @@ public class Main {
         System.out.println(taskManager.getSubtaskById(5).toString());
 
         // Удаление задачи по id
-        taskManager.deleteTaskById(2);
-        taskManager.deleteEpicById(6);
+//        taskManager.deleteTaskById(2);
+//        taskManager.deleteEpicById(6);
+//
+//        System.out.println("Список всех задач \n" + taskManager.getAllTask().toString());
+//        System.out.println("Список всех objects.Epic задач \n" + taskManager.getAllEpic().toString());
+//        System.out.println("Список всех objects.Subtask задач \n" + taskManager.getAllSubtask().toString());
+//
+//        // Удаление всех задач
+//        taskManager.deleteAllTasks();
+//        taskManager.deleteAllEpics();
+//        taskManager.deleteAllSubtask();
+//        System.out.println("Список всех задач \n" + taskManager.getAllTask().toString());
+//        System.out.println("Список всех objects.Epic задач \n" + taskManager.getAllEpic().toString());
+//        System.out.println("Список всех objects.Subtask задач \n" + taskManager.getAllSubtask().toString());
 
-        System.out.println("Список всех задач \n" + taskManager.getAllTask().toString());
-        System.out.println("Список всех objects.Epic задач \n" + taskManager.getAllEpic().toString());
-        System.out.println("Список всех objects.Subtask задач \n" + taskManager.getAllSubtask().toString());
+        // Получение задачи по id
 
-        // Удаление всех задач
-        taskManager.deleteAllTasks();
-        taskManager.deleteAllEpics();
-        taskManager.deleteAllSubtask();
-        System.out.println("Список всех задач \n" + taskManager.getAllTask().toString());
-        System.out.println("Список всех objects.Epic задач \n" + taskManager.getAllEpic().toString());
-        System.out.println("Список всех objects.Subtask задач \n" + taskManager.getAllSubtask().toString());
+        System.out.println("Задача id 1 " + taskManager.getTaskById(1).toString());
+        System.out.println("Задача id 2 " + taskManager.getTaskById(2).toString());
+        System.out.println("Задача id 2 " + taskManager.getTaskById(2).toString());
+        System.out.println("Задача id 1 " + taskManager.getTaskById(1).toString());
+
+        System.out.println("История запроса задач " + historyManager.getHistory().toString());
     }
 }
