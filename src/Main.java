@@ -1,11 +1,14 @@
-import java.util.ArrayList;
-import java.util.HashMap;
+import managers.InMemoryTaskManager;
+import managers.TaskManager;
+import objects.Epic;
+import objects.Subtask;
+import objects.Task;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        TaskManager taskManager = new TaskManager();
+        TaskManager taskManager = new InMemoryTaskManager();
         Task taskOne = new Task("Task_1", "Task_1 Description", Task.Status.NEW);
         Task taskTwo = new Task("Task_2", "Task_2 Description", Task.Status.NEW);
 
@@ -29,9 +32,9 @@ public class Main {
 
         // Получение списка задач
         System.out.println("Список всех задач \n" + taskManager.getAllTask().toString());
-        System.out.println("Список всех Epic задач \n" + taskManager.getAllEpic().toString());
-        System.out.println("Список всех Subtask задач \n" + taskManager.getAllSubtask().toString());
-        System.out.println("Список всех Subtask задач в первом Epic\n" + taskManager.getAllTaskByEpicID(3));
+        System.out.println("Список всех objects.Epic задач \n" + taskManager.getAllEpic().toString());
+        System.out.println("Список всех objects.Subtask задач \n" + taskManager.getAllSubtask().toString());
+        System.out.println("Список всех objects.Subtask задач в первом objects.Epic\n" + taskManager.getAllTaskByEpicID(3));
 
         // Обновление задачи
         Task taskOneUpdate = new Task("Task_1 Update", "Task_1 Description", Task.Status.IN_PROGRESS);
@@ -52,15 +55,15 @@ public class Main {
         taskManager.deleteEpicById(6);
 
         System.out.println("Список всех задач \n" + taskManager.getAllTask().toString());
-        System.out.println("Список всех Epic задач \n" + taskManager.getAllEpic().toString());
-        System.out.println("Список всех Subtask задач \n" + taskManager.getAllSubtask().toString());
+        System.out.println("Список всех objects.Epic задач \n" + taskManager.getAllEpic().toString());
+        System.out.println("Список всех objects.Subtask задач \n" + taskManager.getAllSubtask().toString());
 
         // Удаление всех задач
         taskManager.deleteAllTasks();
         taskManager.deleteAllEpics();
         taskManager.deleteAllSubtask();
         System.out.println("Список всех задач \n" + taskManager.getAllTask().toString());
-        System.out.println("Список всех Epic задач \n" + taskManager.getAllEpic().toString());
-        System.out.println("Список всех Subtask задач \n" + taskManager.getAllSubtask().toString());
+        System.out.println("Список всех objects.Epic задач \n" + taskManager.getAllEpic().toString());
+        System.out.println("Список всех objects.Subtask задач \n" + taskManager.getAllSubtask().toString());
     }
 }

@@ -1,5 +1,6 @@
-import java.util.Objects;
+package objects;
 
+import java.util.Objects;
 public class Subtask extends Task {
     private int epicID;
 
@@ -19,7 +20,7 @@ public class Subtask extends Task {
 
     @Override
     public String toString() {
-        return "Subtask{" +
+        return "objects.Subtask{" +
                 "epicID=" + epicID  +
                 ", taskName='" + taskName + '\'' +
                 ", taskDescription='" + taskDescription + '\'' +

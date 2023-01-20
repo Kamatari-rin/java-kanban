@@ -1,7 +1,7 @@
+package objects;
+
 import java.util.Objects;
-
 public class Task {
-
     protected String taskName;
     protected String taskDescription;
     protected Status taskStatus;
@@ -31,7 +31,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task{" +
+        return "objects.Task{" +
                 "taskName='" + taskName + '\'' +
                 ", taskDescription='" + taskDescription + '\'' +
                 ", taskStatus=" + taskStatus +
@@ -39,7 +39,7 @@ public class Task {
                 '}' +"\n";
     }
 
-    protected enum Status {
+    public enum Status {
         NEW,
         IN_PROGRESS,
         DONE

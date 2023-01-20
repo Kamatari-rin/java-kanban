@@ -1,27 +1,29 @@
+package managers;
+
+import history.InMemoryHistoryManager;
+import objects.Epic;
+import objects.Subtask;
+import objects.Task;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TaskManager {
+public class InMemoryTaskManager implements TaskManager {
+    private final Map<Integer, Task> tasksMap = new HashMap<>(); // id -> objects.Task
+    private final Map<Integer, Epic> epicsMap = new HashMap<>();
+    private final Map<Integer, Subtask> subtasksMap = new HashMap<>();
 
-    private Map<Integer, Task> tasksMap = new HashMap<>(); // id -> Task
-    private Map<Integer, Epic> epicsMap = new HashMap<>();
-    private Map<Integer, Subtask> subtasksMap = new HashMap<>();
-
-    private HashMap<Integer, TaskType> allTasksMap = new HashMap<>(); // id -> taskType
-    private enum TaskType {
-        TASK,
-        EPIC,
-        SUBTASK
-    }
+    private final HashMap<Integer, TaskType> allTasksMap = new HashMap<>(); // id -> taskType
+    private InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
 
     private int id = 0;
 
-    //----------------------------------------------|          |------------------------------------------------------//
-    //----------------------------------------------|   Task   |------------------------------------------------------//
-    //----------------------------------------------|          |------------------------------------------------------//
+    //----------------------------------------------|   objects.Task   |------------------------------------------------------//
 
-    // Создание объекта Task
+
+    // Создание объекта objects.Task
+    @Override
     public int createTask(Task task) {
         task.setTaskID(++id);
         tasksMap.put(task.getTaskID(), task);
@@ -29,31 +31,33 @@ public class TaskManager {
         return task.getTaskID();
     }
 
-    // Получение списка задач Task
-    // По ТЗ вообще не понятно было что нужно возвращать.
-    // Почему возвращать Map является плохой практикой?
-    // Не понял что вы имели ввиду под заданием параметров для возвращаемой Map, как можно задать параметры?
+    @Override
     public HashMap getAllTask() {
         HashMap<Integer, Task> printTaskMap = (HashMap<Integer, Task>) tasksMap;
         return printTaskMap;
     }
 
     // Получение задачи по идентификатору
+    @Override
     public Task getTaskById(int id) {
         if (!tasksMap.containsKey(id)) {
             return null;
+        } else {
+            Task task = tasksMap.get(id);
+            historyManager.add(task);
+            return task;
         }
-        Task task = tasksMap.get(id);
-        return task;
     }
 
-    // Удаление всех задач Task
+    // Удаление всех задач objects.Task
+    @Override
     public boolean deleteAllTasks() {
         tasksMap.clear();
         return true;
     }
 
-    // Удаление Task по идентификатору
+    // Удаление objects.Task по идентификатору
+    @Override
     public boolean deleteTaskById(int id) {
         if (tasksMap.containsKey(id)) {
             tasksMap.remove(id);
@@ -63,7 +67,8 @@ public class TaskManager {
         return false;
     }
 
-    // Обновление Task
+    // Обновление objects.Task
+    @Override
     public boolean updateTask(Task task, int oldTaskID) {
         task.setTaskID(oldTaskID);
         if (!tasksMap.containsKey(oldTaskID)) return false;
@@ -72,11 +77,10 @@ public class TaskManager {
         return true;
     }
 
-    //----------------------------------------------|          |------------------------------------------------------//
-    //----------------------------------------------|   Epic   |------------------------------------------------------//
-    //----------------------------------------------|          |------------------------------------------------------//
+    //----------------------------------------------|   objects.Epic   |------------------------------------------------------//
 
-    // Создание объекта Epic
+    // Создание объекта objects.Epic
+    @Override
     public int createEpic(Epic epic) {
         epic.setTaskID(++id);
         epicsMap.put(epic.getTaskID(), epic);
@@ -84,22 +88,26 @@ public class TaskManager {
         return epic.getTaskID();
     }
 
-    // Получение Epic по id
-    public Epic getEpicById(int id) {
+    @Override
+    public Task getEpicById(int id) {
         if (!epicsMap.containsKey(id)) {
             return null;
+        } else {
+            Task task = epicsMap.get(id);
+            historyManager.add(task);
+            return task;
         }
-        Epic epic = epicsMap.get(id);
-        return epic;
     }
 
-    // Удаление всех Epic задач
+    // Удаление всех objects.Epic задач
+    @Override
     public boolean deleteAllEpics() {
         epicsMap.clear();
         return true;
     }
 
-    // Удаление Epic задачи по идентификатору
+    // Удаление objects.Epic задачи по идентификатору
+    @Override
     public boolean deleteEpicById(int id) {
         if (epicsMap.containsKey(id)) {
             Epic bufEpic = epicsMap.get(id);
@@ -116,7 +124,8 @@ public class TaskManager {
         return false;
     }
 
-    // Удаление всех Subtask задач в выбранном Epic
+    // Удаление всех objects.Subtask задач в выбранном objects.Epic
+    @Override
     public boolean deleteAllSubtaskInEpic(int id) {
         if (epicsMap.containsKey(id)) {
             Epic bufEpic = epicsMap.get(id);
@@ -130,7 +139,8 @@ public class TaskManager {
         return false;
     }
 
-    // Обновление Epic
+    // Обновление objects.Epic
+    @Override
     public boolean updateEpic(Epic epic, int oldEpicID) {
         if (!epicsMap.containsKey(oldEpicID)) return false;
 
@@ -142,6 +152,7 @@ public class TaskManager {
         return true;
     }
 
+    @Override
     public Epic epicUpdateStatus(Epic epic) {
         HashMap<Integer, Subtask> thisEpicSubtaskMap = getAllTaskByEpicID(epic.getTaskID());
 
@@ -160,9 +171,10 @@ public class TaskManager {
         return epic;
     }
 
+    @Override
     public HashMap getAllTaskByEpicID(int epicID) {
         Epic bufEpic = epicsMap.get(epicID);
-        ArrayList<Integer> subtaskList = bufEpic.getSubtaskList();
+        ArrayList<Integer> subtaskList = (ArrayList<Integer>) bufEpic.getSubtaskList();
         HashMap<Integer, Subtask> thisEpicSubtaskMap = new HashMap<>();
 
         for (Integer subtaskID : subtasksMap.keySet()) {
@@ -185,21 +197,21 @@ public class TaskManager {
         return false;
     }
 
-    // Получение списка Epic задач
+    // Получение списка objects.Epic задач
+    @Override
     public HashMap getAllEpic() {
         HashMap<Integer, Epic> printEpicsMap = (HashMap<Integer, Epic>) epicsMap;
         return printEpicsMap;
     }
 
-    //---------------------------------------------|             |----------------------------------------------------//
-    //---------------------------------------------|   Subtask   |----------------------------------------------------//
-    //---------------------------------------------|             |----------------------------------------------------//
+    //---------------------------------------------|   objects.Subtask   |----------------------------------------------------//
 
-    // Создание объекта Subtask
+    // Создание объекта objects.Subtask
+    @Override
     public int createSubtask(Subtask subtask) {
         subtask.setTaskID(++id);
         Epic bufEpic = epicsMap.get(subtask.getEpicID());
-        ArrayList<Integer> epicTaskList = bufEpic.getSubtaskList();
+        ArrayList<Integer> epicTaskList = (ArrayList<Integer>) bufEpic.getSubtaskList();
 
         epicTaskList.add(subtask.getTaskID());
         subtasksMap.put(subtask.getTaskID(), subtask);
@@ -207,22 +219,25 @@ public class TaskManager {
         return subtask.getTaskID();
     }
 
-    // Получение Subtask задачи по идентификатору
-    public Subtask getSubtaskById(int id) {
+    @Override
+    public Task getSubtaskById(int id) {
         if (!subtasksMap.containsKey(id)) {
             return null;
+        } else {
+            Task task = subtasksMap.get(id);
+            historyManager.add(task);
+            return task;
         }
-        Subtask subtask = subtasksMap.get(id);
-        return subtask;
     }
 
-    // Удаление Subtask задачи по идентификатору
+    // Удаление objects.Subtask задачи по идентификатору
+    @Override
     public boolean deleteSubtaskById(int id) {
         if (subtasksMap.containsKey(id)) {
             Subtask bufSubtask = subtasksMap.get(id);
             int epicID = bufSubtask.getEpicID();
             Epic epicBuf = epicsMap.get(epicID);
-            ArrayList subtaskList = epicBuf.getSubtaskList();
+            ArrayList subtaskList = (ArrayList<Integer>) epicBuf.getSubtaskList();
 
             subtaskList.remove(id);
             subtasksMap.remove(id);
@@ -232,7 +247,8 @@ public class TaskManager {
         return false;
     }
 
-    // Обновление Subtask
+    // Обновление objects.Subtask
+    @Override
     public boolean updateSubtask(Subtask subtask, int oldSubtaskID) {
         subtask.setTaskID(oldSubtaskID);
         if (!subtasksMap.containsKey(oldSubtaskID)) return false;
@@ -243,13 +259,15 @@ public class TaskManager {
         return true;
     }
 
-    // Удаление всех Subtask
+    // Удаление всех objects.Subtask
+    @Override
     public boolean deleteAllSubtask() {
         subtasksMap.clear();
         return true;
     }
 
-    // Получение все Subtask
+    // Получение все objects.Subtask
+    @Override
     public HashMap getAllSubtask() {
         HashMap<Integer, Subtask> printSubtasksMap = (HashMap<Integer, Subtask>) subtasksMap;
         return printSubtasksMap;
