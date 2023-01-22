@@ -1,4 +1,4 @@
-package managers;
+package services.taskmanagers;
 
 public enum TaskType {
     TASK,

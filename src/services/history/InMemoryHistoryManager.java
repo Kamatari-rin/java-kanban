@@ -1,17 +1,16 @@
-package history;
+package services.history;
 
-import objects.Task;
+import models.Task;
 import java.util.ArrayList;
 import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager{
 
-    private static final List<Task> viewHistory = new ArrayList<>();
+    private final List<Task> viewHistory = new ArrayList<>();
 
     @Override
     public List<Task> getHistory() {
-        List history = viewHistory;
-        return history;
+        return viewHistory;
     }
 
     @Override

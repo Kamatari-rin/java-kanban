@@ -1,10 +1,10 @@
-import history.HistoryManager;
-import managers.InMemoryTaskManager;
-import managers.TaskManager;
-import history.InMemoryHistoryManager;
-import objects.Epic;
-import objects.Subtask;
-import objects.Task;
+import services.history.HistoryManager;
+import services.taskmanagers.InMemoryTaskManager;
+import services.taskmanagers.TaskManager;
+import services.history.InMemoryHistoryManager;
+import models.Epic;
+import models.Subtask;
+import models.Task;
 
 public class Main {
 

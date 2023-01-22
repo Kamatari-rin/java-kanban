@@ -1,9 +1,8 @@
-package managers;
-import objects.Epic;
-import objects.Subtask;
-import objects.Task;
+package services.taskmanagers;
+import models.Epic;
+import models.Subtask;
+import models.Task;
 
-import java.util.List;
 import java.util.HashMap;
 
 public interface TaskManager {

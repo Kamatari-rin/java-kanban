@@ -1,9 +1,9 @@
-package managers;
+package services.taskmanagers;
 
-import history.InMemoryHistoryManager;
-import objects.Epic;
-import objects.Subtask;
-import objects.Task;
+import services.history.InMemoryHistoryManager;
+import models.Epic;
+import models.Subtask;
+import models.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;

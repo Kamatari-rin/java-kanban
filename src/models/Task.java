@@ -1,4 +1,4 @@
-package objects;
+package models;
 
 import java.util.Objects;
 public class Task {
