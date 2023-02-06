@@ -83,12 +83,26 @@ public class Main {
         printManager.printTask(taskManager.getTaskById(3));
         printManager.printTask(taskManager.getTaskById(2));
 
+        System.out.println("История запроса задач:");
+        printManager.printArrayList(historyManager.getHistory());
+
+        System.out.println("Получение задачи по id:");
         printManager.printTask(taskManager.getEpicById(4));
         printManager.printTask(taskManager.getSubtaskById(6));
         printManager.printTask(taskManager.getSubtaskById(5));
+
+
+        System.out.println("История запроса задач:");
+        printManager.printArrayList(historyManager.getHistory());
+        System.out.println("Получение задачи по id:");
         printManager.printTask(taskManager.getTaskById(3));
         printManager.printTask(taskManager.getSubtaskById(6));
 
+        System.out.println("История запроса задач:");
+        printManager.printArrayList(historyManager.getHistory());
+
+        System.out.println("Удаление задачи: №2");
+        taskManager.deleteTaskById(2);
         System.out.println("История запроса задач:");
         printManager.printArrayList(historyManager.getHistory());
     }

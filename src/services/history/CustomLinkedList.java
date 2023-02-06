@@ -15,6 +15,11 @@ public class CustomLinkedList<T> {
 
     public void linkLast(T task) {
         final Node<T> oldTail = tail;
+
+        // Я не понял почему все работает в такой реализации.
+        // В конструкторе Node стоит (Node<T> prev, T data, Node<T> next) - Ссылка на предыдущий нод, данные, ссылка на следующий нод
+        // То есть, как я понял мы должны при создании нового нода который станет новым хвостом передавать данные так - (oldTale, task, null)
+        // Но почему-то если передавать так, то prev задается как null, а next присваивается значение prev.
         final Node<T> newNode = new Node<>(null, task, oldTail);
         tail = newNode;
 
@@ -63,5 +68,15 @@ public class CustomLinkedList<T> {
         newdHead = newdHead.next;
         newdHead.prev = null;
         size--;
+    }
+
+    public void removeById(CustomLinkedList<T> customLinkedList, int taskID) {
+        final Map<Integer, Node<T>> nodeHashMap = customLinkedList.getNodeHashMap();
+        Node<T> removedNode = nodeHashMap.get(taskID);
+        removeNode(removedNode);
+    }
+
+    public Map<Integer, Node<T>> getNodeHashMap() {
+        return nodeHashMap;
     }
 }

@@ -62,6 +62,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (tasksMap.containsKey(id)) {
             tasksMap.remove(id);
             allTasksMap.remove(id);
+            historyManager.remove(id);
             return true;
         }
         return false;
@@ -116,9 +117,12 @@ public class InMemoryTaskManager implements TaskManager {
             for (Integer SubtaskID : subtaskList) {
                 allTasksMap.remove(SubtaskID);
                 subtasksMap.remove(SubtaskID);
+                historyManager.remove(SubtaskID);
             }
 
             epicsMap.remove(id);
+            historyManager.remove(id);
+
             return true;
         }
         return false;
@@ -133,6 +137,7 @@ public class InMemoryTaskManager implements TaskManager {
             for (Integer SubtaskID : subtaskList) {
                 subtasksMap.remove(SubtaskID);
                 allTasksMap.remove(SubtaskID);
+                historyManager.remove(SubtaskID);
                 return  true;
             }
         }
@@ -242,6 +247,7 @@ public class InMemoryTaskManager implements TaskManager {
             subtaskList.remove(id);
             subtasksMap.remove(id);
             allTasksMap.remove(id);
+            historyManager.remove(id);
             return true;
         }
         return false;

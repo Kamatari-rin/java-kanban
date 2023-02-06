@@ -6,7 +6,6 @@ import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager{
 
-    // 1. Получае
     private final CustomLinkedList<Task> viewHistory = new CustomLinkedList<>();
 
     @Override
@@ -22,13 +21,12 @@ public class InMemoryHistoryManager implements HistoryManager{
 
     @Override
     public List<Task> getHistory() {
-        final List<Task> taskHistoryList = viewHistory.getTasks();
-        return taskHistoryList;
+        return viewHistory.getTasks();
     }
 
 
     @Override
-    public void remove(int id) {
-
+    public void remove(int taskID) {
+        viewHistory.removeById(viewHistory, taskID);
     }
 }
