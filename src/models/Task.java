@@ -31,12 +31,19 @@ public class Task {
 
     @Override
     public String toString() {
-        return "objects.Task{" +
-                "taskName='" + taskName + '\'' +
-                ", taskDescription='" + taskDescription + '\'' +
-                ", taskStatus=" + taskStatus +
-                ", taskID=" + taskID +
-                '}' +"\n";
+        return  "\n   * " + taskName +
+                ", " + taskDescription +
+                ", " + taskStatus +
+                ", [id : " + taskID +
+                "]";
+    }
+
+    public String getTaskName() {
+        return taskName;
+    }
+
+    public String getTaskDescription() {
+        return taskDescription;
     }
 
     public enum Status {

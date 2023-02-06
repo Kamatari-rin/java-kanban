@@ -19,15 +19,4 @@ public class Epic extends Task{
     public int hashCode() {
         return Objects.hash(super.hashCode(), subtaskList);
     }
-
-    @Override
-    public String toString() {
-        return "objects.Epic{" +
-                ", taskName='" + taskName + '\'' +
-                ", taskDescription='" + taskDescription + '\'' +
-                ", taskStatus=" + taskStatus +
-                ", taskID=" + taskID +
-                " subtaskList= " + subtaskList +
-                '}'+"\n";
-    }
 }

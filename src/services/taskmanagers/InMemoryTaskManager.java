@@ -15,7 +15,7 @@ public class InMemoryTaskManager implements TaskManager {
     private final Map<Integer, Subtask> subtasksMap = new HashMap<>();
 
     private final HashMap<Integer, TaskType> allTasksMap = new HashMap<>(); // id -> taskType
-    private InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
+    private final InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
 
     private int id = 0;
 
@@ -271,5 +271,9 @@ public class InMemoryTaskManager implements TaskManager {
     public HashMap getAllSubtask() {
         HashMap<Integer, Subtask> printSubtasksMap = (HashMap<Integer, Subtask>) subtasksMap;
         return printSubtasksMap;
+    }
+
+    public InMemoryHistoryManager getHistoryManager() {
+        return historyManager;
     }
 }
