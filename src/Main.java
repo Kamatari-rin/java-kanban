@@ -1,6 +1,7 @@
 import services.history.HistoryManager;
 import services.printmanager.PrintManager;
 import services.taskmanagers.InMemoryTaskManager;
+import services.taskmanagers.Managers;
 import services.taskmanagers.TaskManager;
 import services.history.InMemoryHistoryManager;
 import models.Epic;
@@ -12,9 +13,21 @@ import java.util.ArrayList;
 public class Main {
     public static void main(String[] args) {
 
-        TaskManager taskManager = new InMemoryTaskManager();
-        HistoryManager historyManager = ((InMemoryTaskManager) taskManager).getHistoryManager();
-        PrintManager printManager = new PrintManager();
+        Managers managers = new Managers();
+
+        TaskManager taskManager = managers.getDefault();
+        // Тут вы написали коментарий что нужно HistoryManager получить с помощью Managers но мне же не нужен новый объект
+        // я создаю HistoryManager в InMemoryTaskManager и в него сохраняю историю.
+
+        // Просто я честно говоря не сообразил как можно вынести HistoryManager из InMemoryTaskManager
+        // сейчас при получении задачи по id данная задача отправляется historyManager.add(task);
+        // но это возможно только если объект создан в InMemoryTaskManager.
+
+        // Если HistoryManager создать в Main, то как в таком случае из метода, который находится в объекте InMemoryTaskManager
+        // отправить task в HistoryManager который создан в Main?
+
+        HistoryManager historyManager = taskManager.getHistoryManager();
+        PrintManager printManager = managers.getDefaultPrintManager();
 
         Task taskOne = new Task("Задача 1", "Описание первой задачи", Task.Status.NEW);
         Task taskTwo = new Task("Задача 2", "Описание второй задачи", Task.Status.NEW);
