@@ -5,6 +5,7 @@ import models.Task;
 import services.history.HistoryManager;
 
 import java.util.HashMap;
+import java.util.List;
 
 public interface TaskManager {
 
@@ -76,5 +77,5 @@ public interface TaskManager {
     // Получение все objects.Subtask
     HashMap getAllSubtask();
 
-    HistoryManager getHistoryManager();
+    List<Task> getHistory();
 }

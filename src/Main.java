@@ -13,21 +13,8 @@ import java.util.ArrayList;
 public class Main {
     public static void main(String[] args) {
 
-        Managers managers = new Managers();
-
-        TaskManager taskManager = managers.getDefault();
-        // Тут вы написали коментарий что нужно HistoryManager получить с помощью Managers но мне же не нужен новый объект
-        // я создаю HistoryManager в InMemoryTaskManager и в него сохраняю историю.
-
-        // Просто я честно говоря не сообразил как можно вынести HistoryManager из InMemoryTaskManager
-        // сейчас при получении задачи по id данная задача отправляется historyManager.add(task);
-        // но это возможно только если объект создан в InMemoryTaskManager.
-
-        // Если HistoryManager создать в Main, то как в таком случае из метода, который находится в объекте InMemoryTaskManager
-        // отправить task в HistoryManager который создан в Main?
-
-        HistoryManager historyManager = taskManager.getHistoryManager();
-        PrintManager printManager = managers.getDefaultPrintManager();
+        TaskManager taskManager = Managers.getDefault();
+        PrintManager printManager = Managers.getDefaultPrintManager();
 
         Task taskOne = new Task("Задача 1", "Описание первой задачи", Task.Status.NEW);
         Task taskTwo = new Task("Задача 2", "Описание второй задачи", Task.Status.NEW);
@@ -97,7 +84,7 @@ public class Main {
         printManager.printTask(taskManager.getTaskById(2));
 
         System.out.println("История запроса задач:");
-        printManager.printArrayList(historyManager.getHistory());
+        printManager.printArrayList(taskManager.getHistory());
 
         System.out.println("Получение задачи по id:");
         printManager.printTask(taskManager.getEpicById(4));
@@ -106,17 +93,17 @@ public class Main {
 
 
         System.out.println("История запроса задач:");
-        printManager.printArrayList(historyManager.getHistory());
+        printManager.printArrayList(taskManager.getHistory());
         System.out.println("Получение задачи по id:");
         printManager.printTask(taskManager.getTaskById(3));
         printManager.printTask(taskManager.getSubtaskById(6));
 
         System.out.println("История запроса задач:");
-        printManager.printArrayList(historyManager.getHistory());
+        printManager.printArrayList(taskManager.getHistory());
 
         System.out.println("Удаление задачи: №2");
         taskManager.deleteTaskById(2);
         System.out.println("История запроса задач:");
-        printManager.printArrayList(historyManager.getHistory());
+        printManager.printArrayList(taskManager.getHistory());
     }
 }
