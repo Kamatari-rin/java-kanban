@@ -4,6 +4,7 @@ import models.Subtask;
 import models.Task;
 import services.history.HistoryManager;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -13,44 +14,44 @@ public interface TaskManager {
     //----------------------------------------------|   objects.Task   |------------------------------------------------------//
 
     // Создание объекта objects.Task
-    int createTask(Task task);
+    int createTask(Task task) throws IOException;
 
     // Получить все объекты Task
     HashMap getAllTask();
 
     // Получение задачи по идентификатору
-    Task getTaskById(int id);
+    Task getTaskById(int id) throws IOException;
 
     // Удаление всех задач objects.Task
-    boolean deleteAllTasks();
+    boolean deleteAllTasks() throws IOException;
 
     // Удаление objects.Task по идентификатору
-    boolean deleteTaskById(int id);
+    boolean deleteTaskById(int id) throws IOException;
 
     // Обновление objects.Task
-    boolean updateTask(Task task, int oldTaskID);
+    boolean updateTask(Task task, int oldTaskID) throws IOException;
 
     //----------------------------------------------|   objects.Epic   |------------------------------------------------------//
 
     // Создание объекта objects.Epic
-    int createEpic(Epic epic);
+    int createEpic(Epic epic) throws IOException;
 
     // Получение objects.Epic по id
-    Task getEpicById(int id);
+    Task getEpicById(int id) throws IOException;
 
     // Удаление всех objects.Epic задач
-    boolean deleteAllEpics();
+    boolean deleteAllEpics() throws IOException;
 
     // Удаление objects.Epic задачи по идентификатору
-    boolean deleteEpicById(int id);
+    boolean deleteEpicById(int id) throws IOException;
 
     // Удаление всех objects.Subtask задач в выбранном objects.Epic
-    boolean deleteAllSubtaskInEpic(int id);
+    boolean deleteAllSubtaskInEpic(int id) throws IOException;
 
     // Обновление objects.Epic
-    boolean updateEpic(Epic epic, int oldEpicID);
+    boolean updateEpic(Epic epic, int oldEpicID) throws IOException;
 
-    Epic epicUpdateStatus(Epic epic);
+    Epic epicUpdateStatus(Epic epic) throws IOException;
 
     HashMap getAllTaskByEpicID(int epicID);
 
@@ -60,22 +61,24 @@ public interface TaskManager {
     //---------------------------------------------|   objects.Subtask   |----------------------------------------------------//
 
     // Создание объекта objects.Subtask
-    int createSubtask(Subtask subtask);
+    int createSubtask(Subtask subtask) throws IOException;
 
     // Получение objects.Subtask задачи по идентификатору
-    Task getSubtaskById(int id);
+    Task getSubtaskById(int id) throws IOException;
 
     // Удаление objects.Subtask задачи по идентификатору
-    boolean deleteSubtaskById(int id);
+    boolean deleteSubtaskById(int id) throws IOException;
 
     // Обновление objects.Subtask
-    boolean updateSubtask(Subtask subtask, int oldSubtaskID);
+    boolean updateSubtask(Subtask subtask, int oldSubtaskID) throws IOException;
 
     // Удаление всех objects.Subtask
-    boolean deleteAllSubtask();
+    boolean deleteAllSubtask() throws IOException;
 
     // Получение все objects.Subtask
     HashMap getAllSubtask();
 
     List<Task> getHistory();
+
+    void save() throws IOException;
 }

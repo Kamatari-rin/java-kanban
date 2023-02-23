@@ -1,3 +1,4 @@
+import filebacked.FileBackedTasksManager;
 import services.history.HistoryManager;
 import services.printmanager.PrintManager;
 import services.taskmanagers.InMemoryTaskManager;
@@ -8,35 +9,39 @@ import models.Epic;
 import models.Subtask;
 import models.Task;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
-        TaskManager taskManager = Managers.getDefault();
+        //TaskManager taskManager = Managers.getDefault();
         PrintManager printManager = Managers.getDefaultPrintManager();
+        TaskManager taskManager = Managers.loadFromFile(Paths.get("save.csv"));
 
-        Task taskOne = new Task("Задача 1", "Описание первой задачи", Task.Status.NEW);
-        Task taskTwo = new Task("Задача 2", "Описание второй задачи", Task.Status.NEW);
-        Task taskTree = new Task("Задача 3", "Описание третьей задачи", Task.Status.NEW);
-
-        Epic epicOne = new Epic("Эпик 1", "Описание первого эпика");
-        Subtask subtaskOneByFirstEpic = new Subtask("Подзадача 1 от Эпика №1", "Описание первой подзадачи от Эпика №1", Task.Status.NEW, 4);
-        Subtask subtaskTwoByFirstEpic = new Subtask("Подзадача 2 от Эпика №1", "Описание второй подзадачи от Эпика №1", Task.Status.NEW, 4);
-
-        Epic epicTwo = new Epic("Эпик 2", "Описание второго эпика");
-        Subtask subtaskBySecondEpic = new Subtask("Подзадача 1 от Эпика №2", "Описание первой подзадачи от Эпика №2", Task.Status.NEW, 7);
-
-        taskManager.createTask(taskOne);
-        taskManager.createTask(taskTwo);
-        taskManager.createTask(taskTree);
-
-        taskManager.createEpic(epicOne);
-        taskManager.createSubtask(subtaskOneByFirstEpic);
-        taskManager.createSubtask(subtaskTwoByFirstEpic);
-
-        taskManager.createEpic(epicTwo);
-        taskManager.createSubtask(subtaskBySecondEpic);
+//        Task taskOne = new Task("Задача 1", "Описание первой задачи", Task.Status.NEW);
+//        Task taskTwo = new Task("Задача 2", "Описание второй задачи", Task.Status.NEW);
+//        Task taskTree = new Task("Задача 3", "Описание третьей задачи", Task.Status.NEW);
+//
+//        Epic epicOne = new Epic("Эпик 1", "Описание первого эпика");
+//        Subtask subtaskOneByFirstEpic = new Subtask("Подзадача 1 от Эпика №1", "Описание первой подзадачи от Эпика №1", Task.Status.NEW, 4);
+//        Subtask subtaskTwoByFirstEpic = new Subtask("Подзадача 2 от Эпика №1", "Описание второй подзадачи от Эпика №1", Task.Status.NEW, 4);
+//
+//        Epic epicTwo = new Epic("Эпик 2", "Описание второго эпика");
+//        Subtask subtaskBySecondEpic = new Subtask("Подзадача 1 от Эпика №2", "Описание первой подзадачи от Эпика №2", Task.Status.NEW, 7);
+//
+//        taskManager.createTask(taskOne);
+//        taskManager.createTask(taskTwo);
+//        taskManager.createTask(taskTree);
+//
+//        taskManager.createEpic(epicOne);
+//        taskManager.createSubtask(subtaskOneByFirstEpic);
+//        taskManager.createSubtask(subtaskTwoByFirstEpic);
+//
+//        taskManager.createEpic(epicTwo);
+//        taskManager.createSubtask(subtaskBySecondEpic);
 
 
         // Получение списка задач
@@ -54,12 +59,12 @@ public class Main {
 //        taskManager.updateEpic(epicOneUpdate,3);
 //        System.out.println(taskManager.getAllEpic().toString());
 //
-//        Subtask subtaskTwoUpdate = new Subtask("SubtaskBySecondEpic_2 Update", "Subtask_2 Description_Update", Task.Status.IN_PROGRESS, 3);
-//        taskManager.updateSubtask(subtaskTwoUpdate, 5);
+//        Subtask subtaskBySecondEpicUpdate = new Subtask("SubtaskBySecondEpic_2 Update", "Subtask_2 Description_Update", Task.Status.IN_PROGRESS, 7);
+//        taskManager.updateSubtask(subtaskBySecondEpicUpdate, 8);
 //        System.out.println(taskManager.getAllEpic().toString());
 //        System.out.println(taskManager.getSubtaskById(5).toString());
 
-        // Удаление задачи по id
+//        Удаление задачи по id
 //        taskManager.deleteTaskById(2);
 //        taskManager.deleteEpicById(6);
 //
@@ -83,26 +88,26 @@ public class Main {
         printManager.printTask(taskManager.getTaskById(3));
         printManager.printTask(taskManager.getTaskById(2));
 
-        System.out.println("История запроса задач:");
-        printManager.printArrayList(taskManager.getHistory());
-
+//        System.out.println("История запроса задач:");
+//        printManager.printArrayList(taskManager.getHistory());
+//
         System.out.println("Получение задачи по id:");
         printManager.printTask(taskManager.getEpicById(4));
         printManager.printTask(taskManager.getSubtaskById(6));
         printManager.printTask(taskManager.getSubtaskById(5));
 
-
-        System.out.println("История запроса задач:");
-        printManager.printArrayList(taskManager.getHistory());
-        System.out.println("Получение задачи по id:");
-        printManager.printTask(taskManager.getTaskById(3));
-        printManager.printTask(taskManager.getSubtaskById(6));
-
-        System.out.println("История запроса задач:");
-        printManager.printArrayList(taskManager.getHistory());
-
-        System.out.println("Удаление задачи: №2");
-        taskManager.deleteTaskById(2);
+//
+//        System.out.println("История запроса задач:");
+//        printManager.printArrayList(taskManager.getHistory());
+//        System.out.println("Получение задачи по id:");
+//        printManager.printTask(taskManager.getTaskById(3));
+//        printManager.printTask(taskManager.getSubtaskById(6));
+//
+//        System.out.println("История запроса задач:");
+//        printManager.printArrayList(taskManager.getHistory());
+//
+//        System.out.println("Удаление задачи: №2");
+//        taskManager.deleteTaskById(2);
         System.out.println("История запроса задач:");
         printManager.printArrayList(taskManager.getHistory());
     }

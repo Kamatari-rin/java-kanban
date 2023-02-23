@@ -20,12 +20,6 @@ public class Subtask extends Task {
 
     @Override
     public String toString() {
-        return "objects.Subtask{" +
-                "epicID=" + epicID  +
-                ", taskName='" + taskName + '\'' +
-                ", taskDescription='" + taskDescription + '\'' +
-                ", taskStatus=" + taskStatus +
-                ", taskID=" + taskID +
-                '}'+"\n";
+        return taskID + ",Subtask," + taskName + "," + taskStatus + "," + taskDescription + "," + epicID + ",";
     }
 }

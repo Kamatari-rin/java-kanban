@@ -1,23 +1,27 @@
 package services.taskmanagers;
 
+import filebacked.FileBackedTasksManager;
 import services.history.HistoryManager;
 import services.history.InMemoryHistoryManager;
 import models.Epic;
 import models.Subtask;
 import models.Task;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class InMemoryTaskManager implements TaskManager {
-    private final Map<Integer, Task> tasksMap = new HashMap<>(); // id -> objects.Task
-    private final Map<Integer, Epic> epicsMap = new HashMap<>();
-    private final Map<Integer, Subtask> subtasksMap = new HashMap<>();
+    private Map<Integer, Task> tasksMap = new HashMap<>(); // id -> objects.Task
+    private Map<Integer, Epic> epicsMap = new HashMap<>();
+    private Map<Integer, Subtask> subtasksMap = new HashMap<>();
 
-    private final HashMap<Integer, TaskType> allTasksMap = new HashMap<>(); // id -> taskType
-    private final HistoryManager historyManager = Managers.getDefaultHistory();
+    private HashMap<Integer, TaskType> allTasksMap = new HashMap<>(); // id -> taskType
+    private HistoryManager historyManager = Managers.getDefaultHistory();
 
     private int id = 0;
 
@@ -26,7 +30,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Создание объекта objects.Task
     @Override
-    public int createTask(Task task) {
+    public int createTask(Task task) throws IOException {
         task.setTaskID(++id);
         tasksMap.put(task.getTaskID(), task);
         allTasksMap.put(task.getTaskID(), TaskType.TASK);
@@ -41,7 +45,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Получение задачи по идентификатору
     @Override
-    public Task getTaskById(int id) {
+    public Task getTaskById(int id) throws IOException {
         if (!tasksMap.containsKey(id)) {
             return null;
         } else {
@@ -53,14 +57,14 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Удаление всех задач objects.Task
     @Override
-    public boolean deleteAllTasks() {
+    public boolean deleteAllTasks() throws IOException {
         tasksMap.clear();
         return true;
     }
 
     // Удаление objects.Task по идентификатору
     @Override
-    public boolean deleteTaskById(int id) {
+    public boolean deleteTaskById(int id) throws IOException {
         if (tasksMap.containsKey(id)) {
             tasksMap.remove(id);
             allTasksMap.remove(id);
@@ -72,7 +76,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Обновление objects.Task
     @Override
-    public boolean updateTask(Task task, int oldTaskID) {
+    public boolean updateTask(Task task, int oldTaskID) throws IOException {
         task.setTaskID(oldTaskID);
         if (!tasksMap.containsKey(oldTaskID)) return false;
         tasksMap.put(oldTaskID, task);
@@ -84,7 +88,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Создание объекта objects.Epic
     @Override
-    public int createEpic(Epic epic) {
+    public int createEpic(Epic epic) throws IOException {
         epic.setTaskID(++id);
         epicsMap.put(epic.getTaskID(), epic);
         allTasksMap.put(epic.getTaskID(), TaskType.EPIC);
@@ -92,7 +96,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task getEpicById(int id) {
+    public Task getEpicById(int id) throws IOException {
         if (!epicsMap.containsKey(id)) {
             return null;
         } else {
@@ -104,14 +108,14 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Удаление всех objects.Epic задач
     @Override
-    public boolean deleteAllEpics() {
+    public boolean deleteAllEpics() throws IOException {
         epicsMap.clear();
         return true;
     }
 
     // Удаление objects.Epic задачи по идентификатору
     @Override
-    public boolean deleteEpicById(int id) {
+    public boolean deleteEpicById(int id) throws IOException {
         if (epicsMap.containsKey(id)) {
             Epic bufEpic = epicsMap.get(id);
             ArrayList<Integer> subtaskList = (ArrayList<Integer>) bufEpic.getSubtaskList();
@@ -132,7 +136,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Удаление всех objects.Subtask задач в выбранном objects.Epic
     @Override
-    public boolean deleteAllSubtaskInEpic(int id) {
+    public boolean deleteAllSubtaskInEpic(int id) throws IOException {
         if (epicsMap.containsKey(id)) {
             Epic bufEpic = epicsMap.get(id);
             ArrayList<Integer> subtaskList = (ArrayList<Integer>) bufEpic.getSubtaskList();
@@ -148,7 +152,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Обновление objects.Epic
     @Override
-    public boolean updateEpic(Epic epic, int oldEpicID) {
+    public boolean updateEpic(Epic epic, int oldEpicID) throws IOException {
         if (!epicsMap.containsKey(oldEpicID)) return false;
 
         epic.setTaskID(oldEpicID);
@@ -160,7 +164,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Epic epicUpdateStatus(Epic epic) {
+    public Epic epicUpdateStatus(Epic epic) throws IOException {
         HashMap<Integer, Subtask> thisEpicSubtaskMap = getAllTaskByEpicID(epic.getTaskID());
 
         boolean areThereNewOrProgressSubtask = areThereNewOrProgressSubtask(thisEpicSubtaskMap);
@@ -215,7 +219,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Создание объекта objects.Subtask
     @Override
-    public int createSubtask(Subtask subtask) {
+    public int createSubtask(Subtask subtask) throws IOException {
         subtask.setTaskID(++id);
         Epic bufEpic = epicsMap.get(subtask.getEpicID());
         ArrayList<Integer> epicTaskList = (ArrayList<Integer>) bufEpic.getSubtaskList();
@@ -227,7 +231,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task getSubtaskById(int id) {
+    public Task getSubtaskById(int id) throws IOException {
         if (!subtasksMap.containsKey(id)) {
             return null;
         } else {
@@ -239,7 +243,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Удаление objects.Subtask задачи по идентификатору
     @Override
-    public boolean deleteSubtaskById(int id) {
+    public boolean deleteSubtaskById(int id) throws IOException {
         if (subtasksMap.containsKey(id)) {
             Subtask bufSubtask = subtasksMap.get(id);
             int epicID = bufSubtask.getEpicID();
@@ -257,7 +261,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Обновление objects.Subtask
     @Override
-    public boolean updateSubtask(Subtask subtask, int oldSubtaskID) {
+    public boolean updateSubtask(Subtask subtask, int oldSubtaskID) throws IOException {
         subtask.setTaskID(oldSubtaskID);
         if (!subtasksMap.containsKey(oldSubtaskID)) return false;
         subtasksMap.put(oldSubtaskID, subtask);
@@ -269,7 +273,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Удаление всех objects.Subtask
     @Override
-    public boolean deleteAllSubtask() {
+    public boolean deleteAllSubtask() throws IOException {
         subtasksMap.clear();
         return true;
     }
@@ -283,5 +287,42 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> getHistory() {
         return historyManager.getHistory();
+    }
+
+    @Override
+    public void save() throws IOException {
+
+    }
+
+    public Map<Integer, Task> getTasksMap() {
+        return tasksMap;
+    }
+
+    public Map<Integer, Epic> getEpicsMap() {
+        return epicsMap;
+    }
+
+    public Map<Integer, Subtask> getSubtasksMap() {
+        return subtasksMap;
+    }
+
+    public void setTasksMap(Map<Integer, Task> tasksMap) {
+        this.tasksMap = tasksMap;
+    }
+
+    public void setEpicsMap(Map<Integer, Epic> epicsMap) {
+        this.epicsMap = epicsMap;
+    }
+
+    public void setSubtasksMap(Map<Integer, Subtask> subtasksMap) {
+        this.subtasksMap = subtasksMap;
+    }
+
+    public void setHistoryManager(HistoryManager historyManager) {
+        this.historyManager = historyManager;
+    }
+
+    public void setAllTasksMap(HashMap<Integer, TaskType> allTasksMap) {
+        this.allTasksMap = allTasksMap;
     }
 }

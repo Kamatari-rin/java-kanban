@@ -31,11 +31,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return  "\n   * " + taskName +
-                ", " + taskDescription +
-                ", " + taskStatus +
-                ", [id : " + taskID +
-                "]";
+        return  taskID + ",Task," + taskName + "," + taskStatus + "," + taskDescription + ",";
     }
 
     public String getTaskName() {
@@ -61,6 +57,7 @@ public class Task {
                 && Objects.equals(taskDescription, otherTask.taskDescription)
                 && taskStatus == otherTask.taskStatus;
     }
+
     @Override
     public int hashCode() {
         return Objects.hash(taskName, taskDescription, taskStatus);

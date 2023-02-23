@@ -1,8 +1,6 @@
 package services.printmanager;
 
-import models.Subtask;
 import models.Task;
-import models.Epic;
 
 import java.util.List;
 
