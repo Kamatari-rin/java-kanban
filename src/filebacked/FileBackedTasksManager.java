@@ -341,8 +341,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
 
 
     // Вроде сделал, но честно говоря не понял как с этим работать.
-    // static void main(String[] args) - как этот метож запустить?
-    // И почему именно так же это должно выглядеть?
+    // static void main(String[] args) - как этот метод запустить?
+    // И почему именно так это должно выглядеть?
     static void main(String[] args) throws IOException {
         if (Files.exists(Paths.get(("savefortest.csv")))) Files.delete(Paths.get(("savefortest.csv")));
 
