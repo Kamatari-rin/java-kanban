@@ -8,7 +8,9 @@ import models.Subtask;
 import models.Task;
 import services.history.HistoryManager;
 import services.history.InMemoryHistoryManager;
+import services.printmanager.PrintManager;
 import services.taskmanagers.InMemoryTaskManager;
+import services.taskmanagers.Managers;
 import services.taskmanagers.TaskManager;
 import services.taskmanagers.TaskType;
 
@@ -16,6 +18,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class FileBackedTasksManager extends InMemoryTaskManager implements TaskManager {
@@ -334,5 +337,99 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         boolean isDeleted = super.deleteAllSubtask();
         save();
         return isDeleted;
+    }
+
+
+    // Вроде сделал, но честно говоря не понял как с этим работать.
+    // static void main(String[] args) - как этот метож запустить?
+    // И почему именно так же это должно выглядеть?
+    static void main(String[] args) throws IOException {
+        if (Files.exists(Paths.get(("savefortest.csv")))) Files.delete(Paths.get(("savefortest.csv")));
+
+        Path saveForTest = Files.createFile(Paths.get("savefortest.csv"));
+        TaskManager controlTaskManager = new FileBackedTasksManager(saveForTest);
+
+        Task taskOne = new Task("Задача 1", "Описание первой задачи", Task.Status.NEW);
+        Task taskTwo = new Task("Задача 2", "Описание второй задачи", Task.Status.NEW);
+        Task taskTree = new Task("Задача 3", "Описание третьей задачи", Task.Status.NEW);
+
+        controlTaskManager.createTask(taskOne);
+        controlTaskManager.createTask(taskTwo);
+        controlTaskManager.createTask(taskTree);
+
+        Epic epicOne = new Epic("Эпик 1", "Описание первого эпика");
+        Epic epicTwo = new Epic("Эпик 2", "Описание второго эпика");
+
+        controlTaskManager.createEpic(epicOne);
+        controlTaskManager.createEpic(epicTwo);
+
+        int epicOneID = 0;
+        int epicTwoID = 0;
+        Map<Integer, Epic> epicMap = controlTaskManager.getAllEpic();
+        for (Integer epicID : epicMap.keySet()) {
+            Epic epic = epicMap.get(epicID);
+            if (epic.getTaskName().equals("Эпик 1")) {
+                epicOneID = epic.getTaskID();
+            } else if (epic.getTaskName().equals("Эпик 2")) {
+                epicTwoID = epic.getTaskID();
+            }
+        }
+
+        Subtask subtaskOneByFirstEpic = new Subtask("Подзадача 1 от Эпика №1", "Описание первой подзадачи от Эпика №1", Task.Status.NEW, epicOneID);
+        Subtask subtaskTwoByFirstEpic = new Subtask("Подзадача 2 от Эпика №1", "Описание второй подзадачи от Эпика №1", Task.Status.NEW, epicOneID);
+        Subtask subtaskBySecondEpic = new Subtask("Подзадача 1 от Эпика №2", "Описание первой подзадачи от Эпика №2", Task.Status.NEW, epicTwoID);
+
+        controlTaskManager.createSubtask(subtaskOneByFirstEpic);
+        controlTaskManager.createSubtask(subtaskTwoByFirstEpic);
+        controlTaskManager.createSubtask(subtaskBySecondEpic);
+
+        Map<Integer, Task> taskMap = controlTaskManager.getAllTask();
+        Map<Integer, Subtask> subtaskMap = controlTaskManager.getAllSubtask();
+
+        List<Integer> tasksIDList = new ArrayList<>();
+
+        for (Integer taskID : taskMap.keySet()) {
+            Task task = taskMap.get(taskID);
+            tasksIDList.add(task.getTaskID());
+        }
+        for (Integer taskID : epicMap.keySet()) {
+            Epic task = epicMap.get(taskID);
+            tasksIDList.add(task.getTaskID());
+        }
+        for (Integer taskID : subtaskMap.keySet()) {
+            Subtask task = subtaskMap.get(taskID);
+            tasksIDList.add(task.getTaskID());
+        }
+
+        Collections.shuffle(tasksIDList);
+
+        for (Integer taskID : tasksIDList) {
+            controlTaskManager.getTaskById(taskID);
+        }
+
+        final List<Task> controlHisoryList = controlTaskManager.getHistory();
+        final Map<Integer, Task> controlTaskMap = Collections.unmodifiableMap(controlTaskManager.getAllTask());
+        final Map<Integer, Task> controlEpicsMap = Collections.unmodifiableMap(controlTaskManager.getAllEpic());
+        final Map<Integer, Task> controlSubtaskMap = Collections.unmodifiableMap(controlTaskManager.getAllSubtask());
+
+        //////////////////////////////////////Востанавливаемся из файла/////////////////////////////////////////////////
+
+        TaskManager loadFromFileTaskManager = new FileBackedTasksManager(saveForTest);
+
+        final List<Task> HistoryListFromFile = controlTaskManager.getHistory();
+        final Map<Integer, Task> TaskMapFromFile = Collections.unmodifiableMap(loadFromFileTaskManager.getAllTask());
+        final Map<Integer, Task> EpicsMapFromFile = Collections.unmodifiableMap(loadFromFileTaskManager.getAllEpic());
+        final Map<Integer, Task> SubtaskMapFromFile = Collections.unmodifiableMap(loadFromFileTaskManager.getAllSubtask());
+
+        boolean isEqual = Objects.equals(controlHisoryList, HistoryListFromFile);
+        if (!isEqual) System.out.println("Ошибка HistoryList не верно загружен.");
+        isEqual =Objects.equals(controlTaskMap, TaskMapFromFile);
+        if (!isEqual) System.out.println("Ошибка TaskMap не верно загружен!");
+        isEqual = Objects.equals(controlEpicsMap, EpicsMapFromFile);
+        if (!isEqual) System.out.println("Ошибка EpicMap не верно загружен!");
+        isEqual = Objects.equals(controlSubtaskMap, SubtaskMapFromFile);
+        if (!isEqual) System.out.println("Ошибка SubtaskMap не верно загружен!");
+
+        System.out.println("Запись данных в файл и востановление из файла прошло успешно!");
     }
 }

@@ -35,12 +35,12 @@ public class TaskManagerDefault {
 
     public void createEpics() throws IOException {
         taskManager.createEpic(epicOne);
-        taskManager.createSubtask(subtaskOneByFirstEpic);
-        taskManager.createSubtask(subtaskTwoByFirstEpic);
+        taskManager.createEpic(epicTwo);
     }
 
     public void createSubtask() throws IOException {
-        taskManager.createEpic(epicTwo);
+        taskManager.createSubtask(subtaskOneByFirstEpic);
+        taskManager.createSubtask(subtaskTwoByFirstEpic);
         taskManager.createSubtask(subtaskBySecondEpic);
     }
 

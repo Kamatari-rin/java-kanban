@@ -4,7 +4,6 @@ import services.history.HistoryManager;
 import models.Epic;
 import models.Subtask;
 import models.Task;
-import services.history.Node;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,9 +34,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public HashMap getAllTask() {
-        HashMap<Integer, Task> printTaskMap = (HashMap<Integer, Task>) tasksMap;
-        return printTaskMap;
+    public Map<Integer, Task> getAllTask() {
+        return tasksMap;
     }
 
     // Получение задачи по идентификатору
@@ -229,9 +227,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Получение списка objects.Epic задач
     @Override
-    public HashMap getAllEpic() {
-        HashMap<Integer, Epic> printEpicsMap = (HashMap<Integer, Epic>) epicsMap;
-        return printEpicsMap;
+    public Map<Integer, Epic> getAllEpic() {
+        return epicsMap;
     }
 
     //---------------------------------------------|   objects.Subtask   |----------------------------------------------------//
@@ -304,9 +301,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Получение все objects.Subtask
     @Override
-    public HashMap getAllSubtask() {
-        HashMap<Integer, Subtask> printSubtasksMap = (HashMap<Integer, Subtask>) subtasksMap;
-        return printSubtasksMap;
+    public Map<Integer, Subtask> getAllSubtask() {
+        return subtasksMap;
     }
     @Override
     public List<Task> getHistory() {

@@ -2,11 +2,11 @@ package services.taskmanagers;
 import models.Epic;
 import models.Subtask;
 import models.Task;
-import services.history.HistoryManager;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public interface TaskManager {
 
@@ -17,7 +17,7 @@ public interface TaskManager {
     int createTask(Task task) throws IOException;
 
     // Получить все объекты Task
-    HashMap getAllTask();
+    Map<Integer, Task> getAllTask();
 
     // Получение задачи по идентификатору
     Task getTaskById(int id) throws IOException;
@@ -56,7 +56,7 @@ public interface TaskManager {
     HashMap getAllTaskByEpicID(int epicID);
 
     // Получение списка objects.Epic задач
-    HashMap getAllEpic();
+    Map<Integer, Epic> getAllEpic();
 
     //---------------------------------------------|   objects.Subtask   |----------------------------------------------------//
 
@@ -76,7 +76,7 @@ public interface TaskManager {
     boolean deleteAllSubtask() throws IOException;
 
     // Получение все objects.Subtask
-    HashMap getAllSubtask();
+    Map<Integer, Subtask> getAllSubtask();
 
     List<Task> getHistory();
 
