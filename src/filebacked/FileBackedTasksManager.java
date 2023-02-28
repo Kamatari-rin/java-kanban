@@ -1,5 +1,8 @@
 package filebacked;
 
+import exceptions.FileCreateException;
+import exceptions.FileReadException;
+import exceptions.FileWriteException;
 import models.Epic;
 import models.Subtask;
 import models.Task;
@@ -49,12 +52,12 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         writeDataInFile(tasksList, historyList);
     }
 
-    private void createFile(Path path) throws IOException {
+    private void createFile(Path path) {
         if (!Files.exists(path)) {
             try {
                 Files.createFile(path);
             } catch (IOException e) {
-                throw new IOException("Не удалось создать файл.");
+                throw new FileCreateException("Не удалось создать файл.");
             }
         }
     }
@@ -77,7 +80,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         return tasksList;
     }
 
-    private void writeDataInFile(final List<String> tasksList, final String viewHistory) throws RuntimeException {
+    private void writeDataInFile(final List<String> tasksList, final String viewHistory) {
 
         try(BufferedWriter fr = new BufferedWriter(new FileWriter(this.userData.toFile(), StandardCharsets.UTF_8, true))) {
             for (String task : tasksList) {
@@ -86,7 +89,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
             fr.write("\n\n" + viewHistory);
             fr.flush();
         } catch (IOException e) {
-            throw new RuntimeException("Не удалось сохранить данные.");
+            throw new FileWriteException("Не удалось сохранить данные.");
         }
     }
 
@@ -203,7 +206,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
             }
             return dataFromFile;
         } catch (IOException e) {
-            throw new RuntimeException("Ошибка при чтении файла.");
+            throw new FileReadException("Ошибка при чтении файла.");
         }
     }
 

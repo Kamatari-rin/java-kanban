@@ -1,15 +1,12 @@
 package services.taskmanagers;
 
-import filebacked.FileBackedTasksManager;
 import services.history.HistoryManager;
-import services.history.InMemoryHistoryManager;
 import models.Epic;
 import models.Subtask;
 import models.Task;
+import services.history.Node;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,6 +55,12 @@ public class InMemoryTaskManager implements TaskManager {
     // Удаление всех задач objects.Task
     @Override
     public boolean deleteAllTasks() throws IOException {
+
+        for (Integer taskID : tasksMap.keySet()) {
+            if (historyManager.isHistoryContainsTask(taskID)) {
+                historyManager.remove(taskID);
+            }
+        }
         tasksMap.clear();
         return true;
     }
@@ -109,6 +112,20 @@ public class InMemoryTaskManager implements TaskManager {
     // Удаление всех objects.Epic задач
     @Override
     public boolean deleteAllEpics() throws IOException {
+
+        for (Integer taskID : epicsMap.keySet()) {
+            if (historyManager.isHistoryContainsTask(taskID)) {
+                historyManager.remove(taskID);
+            }
+        }
+
+        for (Integer taskID : subtasksMap.keySet()) {
+            if (historyManager.isHistoryContainsTask(taskID)) {
+                historyManager.remove(taskID);
+            }
+        }
+
+        subtasksMap.clear();
         epicsMap.clear();
         return true;
     }
@@ -167,7 +184,7 @@ public class InMemoryTaskManager implements TaskManager {
     public Epic epicUpdateStatus(Epic epic) throws IOException {
         HashMap<Integer, Subtask> thisEpicSubtaskMap = getAllTaskByEpicID(epic.getTaskID());
 
-        boolean areThereNewOrProgressSubtask = areThereNewOrProgressSubtask(thisEpicSubtaskMap);
+        boolean areThereNewOrProgressSubtask = areNewOrProgressSubtask(thisEpicSubtaskMap);
 
         if (!areThereNewOrProgressSubtask) {
             epic.setTaskStatus(Task.Status.DONE);
@@ -198,7 +215,9 @@ public class InMemoryTaskManager implements TaskManager {
         return thisEpicSubtaskMap;
     }
 
-    private boolean areThereNewOrProgressSubtask(HashMap<Integer, Subtask> subtasks) {
+    // Честно говоря не знаю как будет лучше переименовать данный метод.
+    // Есть ли новые задачи или задачи в прогрессе, в мапе которую ему передают? Он отвечает на этот вопрос.
+    private boolean areNewOrProgressSubtask(HashMap<Integer, Subtask> subtasks) {
         for (Integer subtaskID : subtasks.keySet()) {
             Subtask bufSubtask = subtasks.get(subtaskID);
             if (bufSubtask.getTaskStatus() == Task.Status.NEW || bufSubtask.getTaskStatus() == Task.Status.IN_PROGRESS) {
@@ -274,6 +293,11 @@ public class InMemoryTaskManager implements TaskManager {
     // Удаление всех objects.Subtask
     @Override
     public boolean deleteAllSubtask() throws IOException {
+        for (Integer taskID : subtasksMap.keySet()) {
+            if (historyManager.isHistoryContainsTask(taskID)) {
+                historyManager.remove(taskID);
+            }
+        }
         subtasksMap.clear();
         return true;
     }

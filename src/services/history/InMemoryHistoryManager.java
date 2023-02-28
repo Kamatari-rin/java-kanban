@@ -29,4 +29,10 @@ public class InMemoryHistoryManager implements HistoryManager{
     public void remove(int taskID) {
         viewHistory.removeById(viewHistory, taskID);
     }
+
+    @Override
+    public boolean isHistoryContainsTask(int taskID) {
+        if (viewHistory.contains(taskID)) return true;
+        else return false;
+    }
 }
