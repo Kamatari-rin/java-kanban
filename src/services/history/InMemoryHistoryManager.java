@@ -19,14 +19,17 @@ public class InMemoryHistoryManager implements HistoryManager{
         }
     }
 
+    // Долго тупил как и где лучше бросать ошибку и как ее принимать
+    // В итоге сделал что ошибка создается в CustomLinkedList, приниматся тут и создается новая такая же
+    // Но как пробросить ошибку которая создается в CustomLinkedList дальше я не понял.
     @Override
-    public List<Task> getHistory() {
+    public List<Task> getHistory() throws RuntimeException {
         return viewHistory.getTasks();
     }
 
 
     @Override
-    public void remove(int taskID) {
+    public void remove(int taskID) throws RuntimeException {
         viewHistory.removeById(viewHistory, taskID);
     }
 

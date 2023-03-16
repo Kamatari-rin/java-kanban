@@ -6,50 +6,56 @@ import exceptions.FileWriteException;
 import models.Epic;
 import models.Subtask;
 import models.Task;
-import services.history.HistoryManager;
-import services.history.InMemoryHistoryManager;
-import services.printmanager.PrintManager;
+
 import services.taskmanagers.InMemoryTaskManager;
-import services.taskmanagers.Managers;
-import services.taskmanagers.TaskManager;
 import services.taskmanagers.TaskType;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-public class FileBackedTasksManager extends InMemoryTaskManager implements TaskManager {
+public class FileBackedTasksManager<T extends Task> extends InMemoryTaskManager<T> {
 
     private  Path userData;
 
     public FileBackedTasksManager(Path path) {
-
         userData = path;
-
-        if (Files.exists(path)) {
-            loadFromFile(path);
-        }
+        if (Files.exists(path)) loadFromFile(path);
     }
 
-    // Не совсем понял на счет своего не проверяемого исключения ManagerSaveException что нужно сделать что бы он отлавливал?
-
-
     ///////////////////////////////////////////// Запись в Файл ////////////////////////////////////////////////////////
-    public void save() throws IOException {
+    public void save() {
         createFile(this.userData);
 
         final List<String> tasksList = new ArrayList<>();
-        String historyList = historyToString(List.copyOf(super.getHistory()));
+        String historyList;
 
-        tasksList.addAll(taskMapToStringList(Map.copyOf(super.getTasksMap())));
-        tasksList.addAll(taskMapToStringList(Map.copyOf(super.getEpicsMap())));
-        tasksList.addAll(taskMapToStringList(Map.copyOf(super.getSubtasksMap())));
+        try {
+             historyList = historyToString(List.copyOf(super.getHistory()));
+        } catch (RuntimeException e) {
+            historyList = "";
+        }
+
+        if (!super.tasksMap.isEmpty()){
+            tasksList.addAll(taskMapToStringList(Map.copyOf(super.getAllTask())));
+        }
+        if (!super.epicsMap.isEmpty()) {
+            tasksList.addAll(taskMapToStringList(Map.copyOf(super.getAllEpic())));
+        }
+        if (!super.subtasksMap.isEmpty()) {
+            tasksList.addAll(taskMapToStringList(Map.copyOf(super.getAllSubtask())));
+        }
 
         try (Writer fileWriter = new FileWriter(this.userData.toFile())) {
-            fileWriter.write("id,type,name,status,description,epic,\n");
+            fileWriter.write("id,type,name,status,description,start_date_time,end_date_time,duration,epic,\n");
+        } catch (IOException e) {
+            System.out.println("Ошибка записи в файл");
         }
 
         writeDataInFile(tasksList, historyList);
@@ -84,7 +90,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
     }
 
     private void writeDataInFile(final List<String> tasksList, final String viewHistory) {
-
         try(BufferedWriter fr = new BufferedWriter(new FileWriter(this.userData.toFile(), StandardCharsets.UTF_8, true))) {
             for (String task : tasksList) {
                 fr.write(task + "\n");
@@ -97,108 +102,95 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
     }
 
     ///////////////////////////////////////////// Востановление из Файла ///////////////////////////////////////////////
-
+    //  0  1    2      3        4            5              6           7      8
+    // id,type,name,status,description,start_date_time,end_date_time,duration,epic,
     public void loadFromFile(Path path) {
         List<String> dataFromFile = writeDataFromFileInList(path);
-
-        Map<Integer, Task> tasksMap = new HashMap<>();
-        Map<Integer, Epic> epicsMap = new HashMap<>();
-        Map<Integer, Subtask> subtasksMap = new HashMap<>();
-        HashMap<Integer, TaskType> allTasksMap = new HashMap<>();
-
         Map<Integer, List<Integer>> subtasksByEpic = new HashMap<>();
 
-        HistoryManager historyManager = new InMemoryHistoryManager();
+        for (String data : dataFromFile) {
+            if (data.isBlank()) continue;
+            String[] taskData = data.split(",");
 
-        for (String line : dataFromFile) {
-            if (line.isBlank()) break;
-            String[] element = line.split(",");
-            if (element[1].equals("Task")) {
-                if (element[3].equals("NEW")) {
-                    Task task = new Task(element[2], element[4], Task.Status.NEW);
-                    task.setTaskID(Integer.parseInt(element[0]));
-                    tasksMap.put(Integer.parseInt(element[0]), task);
-                    allTasksMap.put(Integer.parseInt(element[0]), TaskType.TASK);
-                } else if (element[3].equals("IN_PROGRESS")) {
-                    Task task = new Task(element[2], element[4], Task.Status.IN_PROGRESS);
-                    task.setTaskID(Integer.parseInt(element[0]));
-                    tasksMap.put(Integer.parseInt(element[0]), task);
-                    allTasksMap.put(Integer.parseInt(element[0]), TaskType.TASK);
-                } else if (element[3].equals("DONE")) {
-                    Task task = new Task(element[2], element[4], Task.Status.DONE);
-                    task.setTaskID(Integer.parseInt(element[0]));
-                    tasksMap.put(Integer.parseInt(element[0]), task);
-                    allTasksMap.put(Integer.parseInt(element[0]), TaskType.TASK);
-                }
-            } else if (element[1].equals("Epic")) {
-                if (element[3].equals("NEW")) {
-                    Epic epic = new Epic(element[2], element[4], Task.Status.NEW);
-                    epic.setTaskID(Integer.parseInt(element[0]));
-                    epicsMap.put(Integer.parseInt(element[0]), epic);
-                    allTasksMap.put(Integer.parseInt(element[0]), TaskType.EPIC);
-                } else if (element[3].equals("IN_PROGRESS")) {
-                    Epic epic = new Epic(element[2], element[4], Task.Status.IN_PROGRESS);
-                    epic.setTaskID(Integer.parseInt(element[0]));
-                    epicsMap.put(Integer.parseInt(element[0]), epic);
-                    allTasksMap.put(Integer.parseInt(element[0]), TaskType.EPIC);
-                } else if (element[3].equals("DONE")) {
-                    Epic epic = new Epic(element[2], element[4], Task.Status.DONE);
-                    epic.setTaskID(Integer.parseInt(element[0]));
-                    epicsMap.put(Integer.parseInt(element[0]), epic);
-                    allTasksMap.put(Integer.parseInt(element[0]), TaskType.EPIC);
-                }
-            } else if (element[1].equals("Subtask")) {
-                if (element[3].equals("NEW")) {
-                    Subtask subtask = new Subtask(element[2], element[4], Task.Status.NEW, Integer.parseInt(element[5]));
-                    subtask.setTaskID(Integer.parseInt(element[0]));
-                    subtasksMap.put(Integer.parseInt(element[0]), subtask);
-                    allTasksMap.put(Integer.parseInt(element[0]), TaskType.SUBTASK);
+            int id = Integer.parseInt(taskData[0]);
+            String title = taskData[2];
+            String description = taskData[4];
+            ZonedDateTime taskStartTime = null;
+            ZonedDateTime taskEndTime = null;
+            ZoneId zoneID = null;
+            Duration taskDuration = null;
 
-                    List<Integer> buf = subtasksByEpic.getOrDefault(Integer.parseInt(element[5]), new ArrayList<Integer>());
-                    buf.add(Integer.parseInt(element[0]));
-                    subtasksByEpic.put(Integer.parseInt(element[5]), buf);
-                } else if (element[3].equals("IN_PROGRESS")) {
-                    Subtask subtask = new Subtask(element[2], element[4], Task.Status.IN_PROGRESS, Integer.parseInt(element[5]));
-                    subtask.setTaskID(Integer.parseInt(element[0]));
-                    subtasksMap.put(Integer.parseInt(element[0]), subtask);
-                    allTasksMap.put(Integer.parseInt(element[0]), TaskType.SUBTASK);
 
-                    List<Integer> buf = subtasksByEpic.getOrDefault(Integer.parseInt(element[5]), new ArrayList<Integer>());
-                    buf.add(Integer.parseInt(element[0]));
-                    subtasksByEpic.put(Integer.parseInt(element[5]), buf);
-                } else if (element[3].equals("DONE")) {
-                    Subtask subtask = new Subtask(element[2], element[4], Task.Status.DONE, Integer.parseInt(element[5]));
-                    subtask.setTaskID(Integer.parseInt(element[0]));
-                    subtasksMap.put(Integer.parseInt(element[0]), subtask);
-                    allTasksMap.put(Integer.parseInt(element[0]), TaskType.SUBTASK);
+            int epicID = -1;
 
-                    List<Integer> buf = subtasksByEpic.getOrDefault(Integer.parseInt(element[5]), new ArrayList<Integer>());
-                    buf.add(Integer.parseInt(element[0]));
-                    subtasksByEpic.put(Integer.parseInt(element[5]), buf);
-                }
-            } else if (!element[0].equals("id")) {
-                for (int i = 0; i < element.length; i++) {
-                    if (tasksMap.containsKey(element[i])) {
-                        Task task = tasksMap.get(element[i]);
-                        historyManager.add(task);
-                    } else if (epicsMap.containsKey(element[i])) {
-                        Task task = epicsMap.get(element[i]);
-                        historyManager.add(task);
-                    } else if (subtasksMap.containsKey(element[i])) {
-                        Task task = subtasksMap.get(element[i]);
-                        historyManager.add(task);
+            if (taskData.length == 9) {
+                epicID = Integer.parseInt(taskData[8]);
+            }
+            if (taskData.length == 8 || taskData.length == 9) {
+                final DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
+                taskStartTime = ZonedDateTime.parse(taskData[5], formatter);
+                taskEndTime = ZonedDateTime.parse(taskData[6], formatter);
+                zoneID = taskStartTime.getZone();
+                taskDuration = Duration.parse(taskData[7]);
+            }
+
+            String stringStatus = taskData[3];
+            Task.Status taskStatus = null;
+            switch (stringStatus) {
+                case "NEW":
+                    taskStatus = Task.Status.NEW;
+                    break;
+                case "IN_PROGRESS":
+                    taskStatus = Task.Status.IN_PROGRESS;
+                    break;
+                case "DONE":
+                    taskStatus = Task.Status.DONE;
+            }
+
+            String taskType = taskData[1];
+            TaskType type = null;
+
+            switch (taskType) {
+                case "Task":
+                    type = TaskType.TASK;
+                    Task task = new Task(title, description, taskStatus, taskStartTime, taskEndTime, zoneID, taskDuration);
+                    task.setTaskID(id);
+                    this.tasksMap.put(id, task);
+                    break;
+                case "Epic":
+                    type = TaskType.EPIC;
+                    Epic epic = new Epic(title, description);
+                    epic.setTaskID(id);
+                    this.epicsMap.put(id, epic);
+                    break;
+                case "Subtask":
+                    type = TaskType.SUBTASK;
+                    Subtask subtask = new Subtask(title, description, taskStatus, epicID, taskStartTime, taskEndTime, zoneID, taskDuration);
+                    subtask.setTaskID(id);
+                    this.subtasksMap.put(id, subtask);
+                    List<Integer> subtaskList = subtasksByEpic.getOrDefault(epicID, new ArrayList<>());
+                    subtaskList.add(subtask.getTaskID());
+                    subtasksByEpic.put(epicID, subtaskList);
+            }
+
+            if (!taskData[1].equals("Task") && !taskData[1].equals("Epic") && !taskData[1].equals("Subtask") ) {
+                for (int i = 0; i < taskData.length; i++) {
+                    if (tasksMap.containsKey(Integer.parseInt(taskData[i]))) {
+                        Task task = (Task) tasksMap.get(Integer.parseInt(taskData[i]));
+                        this.historyManager.add(task);
+                    } else if (epicsMap.containsKey(Integer.parseInt(taskData[i]))) {
+                        Epic task = (Epic) epicsMap.get(Integer.parseInt(taskData[i]));
+                        this.historyManager.add(task);
+                    } else if (subtasksMap.containsKey(Integer.parseInt(taskData[i]))) {
+                        Subtask task = (Subtask) subtasksMap.get(Integer.parseInt(taskData[i]));
+                        this.historyManager.add(task);
                     }
                 }
             }
         }
-
         putSubtasksListOnEpic(epicsMap, subtasksByEpic);
-        super.setTasksMap(tasksMap);
-        super.setEpicsMap(epicsMap);
-        super.setSubtasksMap(subtasksMap);
-        super.setAllTasksMap(allTasksMap);
-        super.setHistoryManager(historyManager);
     }
+
 
     private List<String> writeDataFromFileInList(final Path path) {
         final List<String> dataFromFile = new ArrayList<>();
@@ -207,21 +199,25 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
                 String line = br.readLine();
                 dataFromFile.add(line);
             }
+            dataFromFile.remove(0);
             return dataFromFile;
         } catch (IOException e) {
             throw new FileReadException("Ошибка при чтении файла.");
         }
     }
 
-    private static void putSubtasksListOnEpic(Map<Integer, Epic> epicsMap, Map<Integer, List<Integer>> subtasksByEpic) {
+    private void putSubtasksListOnEpic(Map<Integer, Epic> epicsMap, Map<Integer, List<Integer>> subtasksByEpic) {
         for (Integer epicID : subtasksByEpic.keySet()) {
             Epic epic = epicsMap.get(epicID);
             epic.setSubtaskList(subtasksByEpic.get(epicID));
+            epicUpdateStatus(epic);
         }
+
+
     }
 
     @Override
-    public int createTask(final Task task) throws IOException {
+    public int createTask(T task) throws IOException {
         int taskID = super.createTask(task);
         save();
         return taskID;
@@ -256,20 +252,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
     }
 
     @Override
-    public int createEpic(Epic epic) throws IOException {
-        int epicID = super.createEpic(epic);
-        save();
-        return epicID;
-    }
-
-    @Override
-    public Task getEpicById(int id) throws IOException {
-        Task epic = super.getEpicById(id);
-        save();
-        return epic;
-    }
-
-    @Override
     public boolean deleteAllEpics() throws IOException {
         boolean isDeleted = super.deleteAllEpics();
         save();
@@ -298,24 +280,10 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
     }
 
     @Override
-    public Epic epicUpdateStatus(Epic epic) throws IOException {
+    public Epic epicUpdateStatus(Epic epic) {
         Epic updatedEpic = super.epicUpdateStatus(epic);
         save();
         return updatedEpic;
-    }
-
-    @Override
-    public int createSubtask(Subtask subtask) throws IOException {
-        int taskID = super.createSubtask(subtask);
-        save();
-        return taskID;
-    }
-
-    @Override
-    public Task getSubtaskById(int id) throws IOException {
-        Task task = super.getSubtaskById(id);
-        save();
-        return task;
     }
 
     @Override
@@ -338,98 +306,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         save();
         return isDeleted;
     }
-
-
-    // Вроде сделал, но честно говоря не понял как с этим работать.
-    // static void main(String[] args) - как этот метод запустить?
-    // И почему именно так это должно выглядеть?
-    static void main(String[] args) throws IOException {
-        if (Files.exists(Paths.get(("savefortest.csv")))) Files.delete(Paths.get(("savefortest.csv")));
-
-        Path saveForTest = Files.createFile(Paths.get("savefortest.csv"));
-        TaskManager controlTaskManager = new FileBackedTasksManager(saveForTest);
-
-        Task taskOne = new Task("Задача 1", "Описание первой задачи", Task.Status.NEW);
-        Task taskTwo = new Task("Задача 2", "Описание второй задачи", Task.Status.NEW);
-        Task taskTree = new Task("Задача 3", "Описание третьей задачи", Task.Status.NEW);
-
-        controlTaskManager.createTask(taskOne);
-        controlTaskManager.createTask(taskTwo);
-        controlTaskManager.createTask(taskTree);
-
-        Epic epicOne = new Epic("Эпик 1", "Описание первого эпика");
-        Epic epicTwo = new Epic("Эпик 2", "Описание второго эпика");
-
-        controlTaskManager.createEpic(epicOne);
-        controlTaskManager.createEpic(epicTwo);
-
-        int epicOneID = 0;
-        int epicTwoID = 0;
-        Map<Integer, Epic> epicMap = controlTaskManager.getAllEpic();
-        for (Integer epicID : epicMap.keySet()) {
-            Epic epic = epicMap.get(epicID);
-            if (epic.getTaskName().equals("Эпик 1")) {
-                epicOneID = epic.getTaskID();
-            } else if (epic.getTaskName().equals("Эпик 2")) {
-                epicTwoID = epic.getTaskID();
-            }
-        }
-
-        Subtask subtaskOneByFirstEpic = new Subtask("Подзадача 1 от Эпика №1", "Описание первой подзадачи от Эпика №1", Task.Status.NEW, epicOneID);
-        Subtask subtaskTwoByFirstEpic = new Subtask("Подзадача 2 от Эпика №1", "Описание второй подзадачи от Эпика №1", Task.Status.NEW, epicOneID);
-        Subtask subtaskBySecondEpic = new Subtask("Подзадача 1 от Эпика №2", "Описание первой подзадачи от Эпика №2", Task.Status.NEW, epicTwoID);
-
-        controlTaskManager.createSubtask(subtaskOneByFirstEpic);
-        controlTaskManager.createSubtask(subtaskTwoByFirstEpic);
-        controlTaskManager.createSubtask(subtaskBySecondEpic);
-
-        Map<Integer, Task> taskMap = controlTaskManager.getAllTask();
-        Map<Integer, Subtask> subtaskMap = controlTaskManager.getAllSubtask();
-
-        List<Integer> tasksIDList = new ArrayList<>();
-
-        for (Integer taskID : taskMap.keySet()) {
-            Task task = taskMap.get(taskID);
-            tasksIDList.add(task.getTaskID());
-        }
-        for (Integer taskID : epicMap.keySet()) {
-            Epic task = epicMap.get(taskID);
-            tasksIDList.add(task.getTaskID());
-        }
-        for (Integer taskID : subtaskMap.keySet()) {
-            Subtask task = subtaskMap.get(taskID);
-            tasksIDList.add(task.getTaskID());
-        }
-
-        Collections.shuffle(tasksIDList);
-
-        for (Integer taskID : tasksIDList) {
-            controlTaskManager.getTaskById(taskID);
-        }
-
-        final List<Task> controlHisoryList = controlTaskManager.getHistory();
-        final Map<Integer, Task> controlTaskMap = Collections.unmodifiableMap(controlTaskManager.getAllTask());
-        final Map<Integer, Task> controlEpicsMap = Collections.unmodifiableMap(controlTaskManager.getAllEpic());
-        final Map<Integer, Task> controlSubtaskMap = Collections.unmodifiableMap(controlTaskManager.getAllSubtask());
-
-        //////////////////////////////////////Востанавливаемся из файла/////////////////////////////////////////////////
-
-        TaskManager loadFromFileTaskManager = new FileBackedTasksManager(saveForTest);
-
-        final List<Task> HistoryListFromFile = controlTaskManager.getHistory();
-        final Map<Integer, Task> TaskMapFromFile = Collections.unmodifiableMap(loadFromFileTaskManager.getAllTask());
-        final Map<Integer, Task> EpicsMapFromFile = Collections.unmodifiableMap(loadFromFileTaskManager.getAllEpic());
-        final Map<Integer, Task> SubtaskMapFromFile = Collections.unmodifiableMap(loadFromFileTaskManager.getAllSubtask());
-
-        boolean isEqual = Objects.equals(controlHisoryList, HistoryListFromFile);
-        if (!isEqual) System.out.println("Ошибка HistoryList не верно загружен.");
-        isEqual =Objects.equals(controlTaskMap, TaskMapFromFile);
-        if (!isEqual) System.out.println("Ошибка TaskMap не верно загружен!");
-        isEqual = Objects.equals(controlEpicsMap, EpicsMapFromFile);
-        if (!isEqual) System.out.println("Ошибка EpicMap не верно загружен!");
-        isEqual = Objects.equals(controlSubtaskMap, SubtaskMapFromFile);
-        if (!isEqual) System.out.println("Ошибка SubtaskMap не верно загружен!");
-
-        System.out.println("Запись данных в файл и востановление из файла прошло успешно!");
+    @Override
+    public Set<Task> getPrioritizedTasks() throws RuntimeException {
+        return super.getPrioritizedTasks();
     }
 }

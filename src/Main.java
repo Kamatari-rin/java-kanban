@@ -17,9 +17,9 @@ public class Main {
         printManager.printTask(taskManager.getTaskById(1));
         printManager.printTask(taskManager.getTaskById(3));
         printManager.printTask(taskManager.getTaskById(2));
-        printManager.printTask(taskManager.getEpicById(4));
-        printManager.printTask(taskManager.getSubtaskById(6));
-        printManager.printTask(taskManager.getSubtaskById(5));
+        printManager.printTask(taskManager.getTaskById(4));
+        printManager.printTask(taskManager.getTaskById(6));
+        printManager.printTask(taskManager.getTaskById(5));
 
         System.out.println("История запроса задач:");
         printManager.printArrayList(taskManager.getHistory());

@@ -4,17 +4,17 @@ import models.Subtask;
 import models.Task;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-public interface TaskManager {
+public interface TaskManager<T extends Task> {
 
     // Получить историю обращения к задачам
     //----------------------------------------------|   objects.Task   |------------------------------------------------------//
 
     // Создание объекта objects.Task
-    int createTask(Task task) throws IOException;
+    int createTask(T task) throws IOException;
 
     // Получить все объекты Task
     Map<Integer, Task> getAllTask();
@@ -29,15 +29,9 @@ public interface TaskManager {
     boolean deleteTaskById(int id) throws IOException;
 
     // Обновление objects.Task
-    boolean updateTask(Task task, int oldTaskID) throws IOException;
+    boolean updateTask(T task, int oldTaskID) throws IOException;
 
     //----------------------------------------------|   objects.Epic   |------------------------------------------------------//
-
-    // Создание объекта objects.Epic
-    int createEpic(Epic epic) throws IOException;
-
-    // Получение objects.Epic по id
-    Task getEpicById(int id) throws IOException;
 
     // Удаление всех objects.Epic задач
     boolean deleteAllEpics() throws IOException;
@@ -51,20 +45,12 @@ public interface TaskManager {
     // Обновление objects.Epic
     boolean updateEpic(Epic epic, int oldEpicID) throws IOException;
 
-    Epic epicUpdateStatus(Epic epic) throws IOException;
-
-    HashMap getAllTaskByEpicID(int epicID);
+    Map<Integer, Subtask> getAllSubtaskByEpicID(int epicID);
 
     // Получение списка objects.Epic задач
     Map<Integer, Epic> getAllEpic();
 
     //---------------------------------------------|   objects.Subtask   |----------------------------------------------------//
-
-    // Создание объекта objects.Subtask
-    int createSubtask(Subtask subtask) throws IOException;
-
-    // Получение objects.Subtask задачи по идентификатору
-    Task getSubtaskById(int id) throws IOException;
 
     // Удаление objects.Subtask задачи по идентификатору
     boolean deleteSubtaskById(int id) throws IOException;
@@ -78,7 +64,8 @@ public interface TaskManager {
     // Получение все objects.Subtask
     Map<Integer, Subtask> getAllSubtask();
 
+    //---------------------------------------------|   objects.Other   |----------------------------------------------------//
     List<Task> getHistory();
-
+    Set<Task> getPrioritizedTasks();
     void save() throws IOException;
 }

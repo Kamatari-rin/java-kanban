@@ -1,11 +1,12 @@
 package models;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class Epic extends Task{
-    private List<Integer> subtaskList = new ArrayList();
+    private List<Integer> subtaskList;
 
     public Epic(String taskName, String taskDescription) {
         super(taskName, taskDescription, Status.NEW);
@@ -16,6 +17,7 @@ public class Epic extends Task{
     }
 
     public List<Integer> getSubtaskList() {
+        if (subtaskList == null) throw new RuntimeException("Список подзадач пуст.");
         return subtaskList;
     }
 

@@ -34,15 +34,25 @@ public class CustomLinkedList<T> {
     private void removeNode(Node<T> node) {
 
         Node<T> removebleNode = node;
-        Node<T> nodePrev = removebleNode.prev;
-        Node<T> nodeNext = removebleNode.next;
+        if (removebleNode.next == null) {
+            tail = removebleNode.prev;
+        } else if (removebleNode.prev == null) {
+            head = removebleNode.next;
+        } else if (removebleNode.prev != null && removebleNode.next != null) {
+            Node<T> nodePrev = removebleNode.prev;
+            Node<T> nodeNext = removebleNode.next;
+            nodePrev.next = removebleNode.next;
+            nodeNext.prev = removebleNode.prev;
+        } else {
+            head = null;
+            tail = null;
+            nodeHashMap.clear();
+        }
 
-        nodePrev.next = removebleNode.next;
-        nodeNext.prev = removebleNode.prev;
     }
 
     public List<Task> getTasks() {
-
+        if (nodeHashMap.isEmpty()) throw new RuntimeException("История пуста.");
         final List<Task> taskHistoryList = new ArrayList<>();
         Node<T> bufNode = this.head;
 
@@ -59,16 +69,17 @@ public class CustomLinkedList<T> {
     }
 
     public void removeHead(CustomLinkedList<T> customLinkedList) {
-        Node<T> newdHead = customLinkedList.head;
-        newdHead = newdHead.next;
-        newdHead.prev = null;
+        Task task = (Task) head.data;
+        removeById(customLinkedList, task.getTaskID());
         size--;
     }
 
     public void removeById(CustomLinkedList<T> customLinkedList, int taskID) {
+        if (!nodeHashMap.containsKey(taskID)) throw new RuntimeException("В истории такой задачи не существует.");
         final Map<Integer, Node<T>> nodeHashMap = customLinkedList.getNodeHashMap();
         Node<T> removedNode = nodeHashMap.get(taskID);
         removeNode(removedNode);
+        nodeHashMap.remove(taskID);
     }
 
     public Map<Integer, Node<T>> getNodeHashMap() {
@@ -76,7 +87,7 @@ public class CustomLinkedList<T> {
     }
 
     public boolean contains(int taskID) {
-        if (nodeHashMap.containsKey(taskID)) return true;
-        else return false;
+        if (!nodeHashMap.containsKey(taskID)) return false;
+        return true;
     }
 }

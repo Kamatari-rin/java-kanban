@@ -5,6 +5,7 @@ import services.history.HistoryManager;
 import services.history.InMemoryHistoryManager;
 import services.printmanager.PrintManager;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -22,7 +23,7 @@ public class Managers {
         return new PrintManager();
     }
 
-    public static FileBackedTasksManager loadFromFile(Path path) {
+    public static FileBackedTasksManager loadFromFile(Path path){
         return new FileBackedTasksManager(Paths.get(path.toUri()));
     }
 }
