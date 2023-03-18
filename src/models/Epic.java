@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class Epic extends Task{
-    private List<Integer> subtaskList;
+    private final List<Integer> subtaskList = new ArrayList<>();
 
     public Epic(String taskName, String taskDescription) {
         super(taskName, taskDescription, Status.NEW);
@@ -17,7 +17,6 @@ public class Epic extends Task{
     }
 
     public List<Integer> getSubtaskList() {
-        if (subtaskList == null) throw new RuntimeException("Список подзадач пуст.");
         return subtaskList;
     }
 
@@ -31,7 +30,11 @@ public class Epic extends Task{
         return taskID + ",Epic," + taskName + "," + taskStatus + "," + taskDescription + ",";
     }
 
-    public void setSubtaskList(List<Integer> subtaskList) {
-        this.subtaskList = subtaskList;
+    public Duration getEpicDuration() {
+        return taskDuration;
+    }
+
+    public void setEpicDuration(Duration duration) {
+        this.taskDuration = duration;
     }
 }

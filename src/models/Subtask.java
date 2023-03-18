@@ -42,6 +42,10 @@ public class Subtask extends Task {
         return Objects.hash(taskName, taskDescription, taskStatus);
     }
 
+    public Duration getSubtaskDuration() {
+        return taskDuration;
+    }
+
     @Override
     public String toString() {
         return taskID + ",Subtask," + taskName + "," + taskStatus + "," + taskDescription + "," + taskStartTime + ","

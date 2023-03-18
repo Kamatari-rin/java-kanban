@@ -13,7 +13,7 @@ public class Task {
     protected Status taskStatus;
     protected int taskID;
     protected ZonedDateTime taskStartTime;
-    protected Duration taskDuration;
+    protected Duration taskDuration = Duration.ZERO;
     protected ZonedDateTime getTaskEndTime;
 
     protected ZoneId zone;
@@ -99,6 +99,10 @@ public class Task {
         return getTaskEndTime;
     }
 
+    public void setGetTaskEndTime(ZonedDateTime getTaskEndTime) {
+        this.getTaskEndTime = getTaskEndTime;
+    }
+
     public enum Status {
         NEW,
         IN_PROGRESS,
@@ -112,7 +116,10 @@ public class Task {
         Task otherTask = (Task) obj;
         return Objects.equals(taskName, otherTask.taskName)
                 && Objects.equals(taskDescription, otherTask.taskDescription)
-                && taskStatus == otherTask.taskStatus;
+                && taskStatus == otherTask.taskStatus
+                && taskStartTime == otherTask.taskStartTime
+                && taskDuration == otherTask.taskDuration
+                && getTaskEndTime == otherTask.getTaskEndTime;
     }
 
     @Override

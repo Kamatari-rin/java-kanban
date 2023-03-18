@@ -1,4 +1,4 @@
-package Tests;
+package tests;
 
 import models.Epic;
 import models.Subtask;
@@ -18,6 +18,13 @@ import static org.junit.jupiter.api.Assertions.*;
 public abstract class TaskManagerTest<T extends TaskManager> {
     protected T taskManager;
     abstract void chooseTaskManager() throws IOException;
+
+    // Я не понял как перенсти папку tests и Main из папки src.
+    // IDEA при попытки сделать Refactor с переносом папки в java-kanban выдает ошибку The destination directory does not correspond to any package.
+
+
+    // Я не совсем уверен в своих знаниях по лямбдам и функциональным интерфейсам (Я не понимаю или не вижу где их можно применить),
+    // что я могу переписать в коде на лямбды или ФИ что бы потренироваться?
 
 ////////////////////////////////////////////  Create Task Test   ///////////////////////////////////////////////////////
     @Test
@@ -45,11 +52,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         Epic epic = new Epic("Эпик 1", "Описание первого эпика");
         final int epicID = taskManager.createTask(epic);
 
-        final RuntimeException exceptionGetSubtaskList = assertThrows(
-                RuntimeException.class,
-                () -> epic.getSubtaskList()
-        );
-        assertEquals("Список подзадач пуст.", exceptionGetSubtaskList.getMessage());
+        List<Integer> subtasksList = Collections.unmodifiableList(epic.getSubtaskList());
+        assertEquals(0, subtasksList.size());
 
         final RuntimeException exceptionGetAllSubtaskByEpicID = assertThrows(
                 RuntimeException.class,
@@ -339,11 +343,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     public void getAllTaskWithEmptyTasksMapTest() {
-        final RuntimeException exception = assertThrows(
-                RuntimeException.class,
-                () -> taskManager.getAllTask()
-        );
-        assertEquals("Список задач пуст.", exception.getMessage());
+        Map<Integer, Task> taskMap = taskManager.getAllTask();
+        assertEquals(0, taskMap.size());
     }
 
     @Test
@@ -372,17 +373,13 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         Task taskOne = new Task("Задача 1", "Описание первой задачи", Task.Status.NEW,
                 LocalDateTime.of(2022, JANUARY, 1, 0, 0), 1, 25);
         taskManager.createTask(taskOne);
-        final Map<Integer, Task> shouldBeOneTask = Collections.unmodifiableMap(taskManager.getAllTask());
+        final Map<Integer, Task> shouldBeOneTask = taskManager.getAllTask();
 
         assertEquals(1, shouldBeOneTask.size());
 
         taskManager.deleteAllTasks();
-        final RuntimeException exception = assertThrows(
-                RuntimeException.class,
-                () -> taskManager.getAllTask()
-        );
-
-        assertEquals("Список задач пуст.", exception.getMessage());
+        Map<Integer, Task> taskMap = taskManager.getAllTask();
+        assertEquals(0, taskMap.size());
     }
 
     @Test
@@ -587,13 +584,9 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.deleteAllSubtaskInEpic(epicOneID);
 
         final List<Integer> shouldBeEmptySubtasksList = Collections.unmodifiableList(epicOne.getSubtaskList());
+        final Map<Integer, Subtask> subtaskMap = taskManager.getAllSubtask();
 
-        final RuntimeException exception = assertThrows(
-                RuntimeException.class,
-                () -> taskManager.getAllSubtask()
-        );
-
-        assertEquals("Список подзадач пуст.", exception.getMessage());
+        assertEquals(0, subtaskMap.size());
         assertEquals(0, shouldBeEmptySubtasksList.size());
 
         final RuntimeException exceptionOne = assertThrows(
@@ -793,12 +786,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     public void getAllEpicWithEmptyEpicsMapTest() {
-        final RuntimeException exception = assertThrows(
-                RuntimeException.class,
-                () -> taskManager.getAllEpic()
-        );
-
-        assertEquals("Список задач пуст.", exception.getMessage());
+        Map<Integer, Epic> epicMap = taskManager.getAllEpic();
+        assertEquals(0, epicMap.size());
     }
 
 ////////////////////////////////////////////////  Subtask Test   ///////////////////////////////////////////////////////
@@ -945,12 +934,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
             assertEquals(0, subtasksList.size());
         }
 
-        final RuntimeException exception = assertThrows(
-                RuntimeException.class,
-                () -> taskManager.getAllSubtask()
-        );
-
-        assertEquals("Список подзадач пуст.", exception.getMessage());
+        final Map<Integer, Subtask> subtaskMap = taskManager.getAllSubtask();
+        assertEquals(0, subtaskMap.size());
     }
 
     @Test
@@ -1012,11 +997,31 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     public void getAllSubtaskWithEmptySubtasksMapTaskTest() {
-        final RuntimeException exception = assertThrows(
-                RuntimeException.class,
-                () -> taskManager.getAllSubtask()
-        );
+        final Map<Integer, Subtask> subtaskMap = taskManager.getAllSubtask();
+        assertEquals(0, subtaskMap.size());
+    }
 
-        assertEquals("Список подзадач пуст.", exception.getMessage());
+    @Test
+    public void getPrioritizedTasksTest() throws IOException {
+        Task taskOne = new Task("Задача 1", "Описание первой задачи", Task.Status.NEW,
+                LocalDateTime.of(2023, JANUARY, 3, 12, 0), 1, 25);
+        Task taskTwo = new Task("Задача 2", "Описание второй задачи", Task.Status.DONE,
+                LocalDateTime.of(2023, JANUARY, 2, 13, 0), 1, 25);
+        Task taskThree = new Task("Задача 3", "Описание третьей задачи", Task.Status.IN_PROGRESS,
+                LocalDateTime.of(2023, JANUARY, 1, 0, 0), 1, 25);
+
+        final int taskOneID = taskManager.createTask(taskOne);
+        final int taskTwoID = taskManager.createTask(taskTwo);
+        final int taskThreeID = taskManager.createTask(taskThree);
+
+        Set<Task> controlSet = new HashSet<>();
+        controlSet.add(taskThree);
+        controlSet.add(taskTwo);
+        controlSet.add(taskOne);
+
+        Set<Task> prioritizedTasks = taskManager.getPrioritizedTasks();
+
+        assertNotNull(prioritizedTasks);
+        assertEquals(controlSet, prioritizedTasks);
     }
 }

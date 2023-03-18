@@ -17,6 +17,7 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
 
     protected Comparator<Task> comparator = (taskOne, taskTwo) -> {
         if (taskOne.equals(taskTwo)) return 1;
+
         if (taskOne.getTaskStartTime().isAfter(taskTwo.getGetTaskEndTime())
                 && taskTwo.getTaskStartTime().isBefore(taskOne.getGetTaskEndTime())) {
             return 1;
@@ -53,24 +54,19 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
             case "Subtask":
                 subtasksMap.put(task.getTaskID(), (Subtask) task);
                 Epic epic = epicsMap.get(((Subtask) task).getEpicID());
-                try {
-                    epic.getSubtaskList();
-                } catch (RuntimeException e) {
-                    epic.setSubtaskList(new ArrayList<Integer>());
-                }
                 List<Integer> subtasksList = epic.getSubtaskList();
                 subtasksList.add(task.getTaskID());
                 prioritizedTasks.add(task);
-                epicsMap.put(epic.getTaskID(), epicUpdateStatus(epic));
+                epicUpdateStatus(epic);
+                epicUpdateDuration(epic);
+                epicUpdateDateStartAndDateEnd(epic);
+                epicsMap.put(epic.getTaskID(), epic);
         }
         return task.getTaskID();
     }
 
     @Override
     public Map<Integer, Task> getAllTask() {
-        if (tasksMap.isEmpty()) {
-            throw new RuntimeException("Список задач пуст.");
-        }
         return (Map<Integer, Task>) Collections.unmodifiableMap(tasksMap);
     }
 
@@ -178,7 +174,7 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
             Epic bufEpic = (Epic) epicsMap.get(id);
             List<Integer> subtaskList = bufEpic.getSubtaskList();
             if (subtaskList == null || subtaskList.isEmpty()) {
-                throw new RuntimeException("Подзадач не найдено.");
+                throw new RuntimeException("Список подзадач пуст.");
             }
             for (Integer SubtaskID : subtaskList) {
                 subtasksMap.remove(SubtaskID);
@@ -198,11 +194,13 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
         if (!epicsMap.containsKey(oldEpicID)) throw new RuntimeException("Задача не найдена.");
         epic.setTaskID(oldEpicID);
         epicUpdateStatus(epic);
+        epicUpdateDuration(epic);
+        epicUpdateDateStartAndDateEnd(epic);
         epicsMap.put(oldEpicID, epic);
         return true;
     }
 
-    protected Epic epicUpdateStatus(Epic epic) {
+    protected void epicUpdateStatus(Epic epic) {
 
         Map<Integer, Subtask> thisEpicSubtaskMap = getAllSubtaskByEpicID(epic.getTaskID());
         boolean areThereNewOrProgressSubtask = areThereAnyNewOrProgressSubtasks(thisEpicSubtaskMap);
@@ -217,7 +215,31 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
                 }
             }
         }
-        return epic;
+    }
+
+    protected void epicUpdateDuration(Epic epic) {
+       final List<Integer> subtasksList = epic.getSubtaskList();
+       epic.setEpicDuration(Duration.ZERO);
+
+        for (Integer subtaskID : subtasksList) {
+            Subtask subtask = subtasksMap.get(subtaskID);
+            Duration duration = epic.getEpicDuration().plus(subtask.getSubtaskDuration());
+            epic.setEpicDuration(duration);
+        }
+    }
+
+    protected void epicUpdateDateStartAndDateEnd(Epic epic) {
+        final List<Integer> subtasksList = epic.getSubtaskList();
+
+        for (Integer subtaskID : subtasksList) {
+            Subtask subtask = subtasksMap.get(subtaskID);
+            if (epic.getTaskStartTime() == null || epic.getTaskStartTime().isAfter(subtask.getTaskStartTime())) {
+                epic.setTaskStartTime(subtask.getTaskStartTime());
+            }
+            if (epic.getGetTaskEndTime() == null || epic.getGetTaskEndTime().isAfter(subtask.getGetTaskEndTime())) {
+                epic.setGetTaskEndTime(subtask.getGetTaskEndTime());
+            }
+        }
     }
 
     @Override
@@ -253,8 +275,7 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
 
     @Override
     public Map<Integer, Epic> getAllEpic() {
-        if (epicsMap == null || epicsMap.isEmpty()) throw new RuntimeException("Список задач пуст.");
-        return (Map<Integer, Epic>) epicsMap;
+        return Collections.unmodifiableMap ((Map<Integer, Epic>) epicsMap) ;
     }
 
     //---------------------------------------------|   objects.Subtask   |----------------------------------------------------//
@@ -286,8 +307,9 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
         subtask.setTaskID(oldSubtaskID);
         subtasksMap.put(oldSubtaskID, subtask);
 
-        Epic bufEpic = epicUpdateStatus(epicsMap.get(subtask.getEpicID()));
-        epicsMap.put(bufEpic.getTaskID(),bufEpic);
+        Epic epic = epicsMap.get(subtask.getEpicID());
+        epicUpdateStatus(epic);
+        epicsMap.put(epic.getTaskID(),epic);
         return true;
     }
 
@@ -314,8 +336,7 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
     // Получение все objects.Subtask
     @Override
     public Map<Integer, Subtask> getAllSubtask() {
-        if (subtasksMap.isEmpty()) throw new RuntimeException("Список подзадач пуст.");
-        return (Map<Integer, Subtask>) subtasksMap;
+        return Collections.unmodifiableMap((Map<Integer, Subtask>) subtasksMap);
     }
 
     @Override
@@ -325,7 +346,6 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
 
     @Override
     public Set<Task> getPrioritizedTasks() {
-        if (prioritizedTasks.isEmpty()) throw new RuntimeException("Список задач пуст.");
         return prioritizedTasks;
     }
 

@@ -106,7 +106,6 @@ public class FileBackedTasksManager<T extends Task> extends InMemoryTaskManager<
     // id,type,name,status,description,start_date_time,end_date_time,duration,epic,
     public void loadFromFile(Path path) {
         List<String> dataFromFile = writeDataFromFileInList(path);
-        Map<Integer, List<Integer>> subtasksByEpic = new HashMap<>();
 
         for (String data : dataFromFile) {
             if (data.isBlank()) continue;
@@ -168,9 +167,7 @@ public class FileBackedTasksManager<T extends Task> extends InMemoryTaskManager<
                     Subtask subtask = new Subtask(title, description, taskStatus, epicID, taskStartTime, taskEndTime, zoneID, taskDuration);
                     subtask.setTaskID(id);
                     this.subtasksMap.put(id, subtask);
-                    List<Integer> subtaskList = subtasksByEpic.getOrDefault(epicID, new ArrayList<>());
-                    subtaskList.add(subtask.getTaskID());
-                    subtasksByEpic.put(epicID, subtaskList);
+                    setSubtasksInEpic(subtask);
             }
 
             if (!taskData[1].equals("Task") && !taskData[1].equals("Epic") && !taskData[1].equals("Subtask") ) {
@@ -188,7 +185,6 @@ public class FileBackedTasksManager<T extends Task> extends InMemoryTaskManager<
                 }
             }
         }
-        putSubtasksListOnEpic(epicsMap, subtasksByEpic);
     }
 
 
@@ -206,14 +202,24 @@ public class FileBackedTasksManager<T extends Task> extends InMemoryTaskManager<
         }
     }
 
-    private void putSubtasksListOnEpic(Map<Integer, Epic> epicsMap, Map<Integer, List<Integer>> subtasksByEpic) {
-        for (Integer epicID : subtasksByEpic.keySet()) {
-            Epic epic = epicsMap.get(epicID);
-            epic.setSubtaskList(subtasksByEpic.get(epicID));
-            epicUpdateStatus(epic);
-        }
+//    private void putSubtasksListOnEpic(Map<Integer, Epic> epicsMap, Map<Integer, List<Integer>> subtasksByEpic) {
+//        for (Integer epicID : subtasksByEpic.keySet()) {
+//            Epic epic = epicsMap.get(epicID);
+//            epic.setSubtaskList(subtasksByEpic.get(epicID));
+//            epicUpdateStatus(epic);
+//        }
+//    }
 
+    private void setSubtasksInEpic(Task task) {
+        Subtask subtask = (Subtask) task;
+        int EpicID = subtask.getEpicID();
+        Epic epic = epicsMap.get(EpicID);
+        List<Integer> subtasksList = epic.getSubtaskList();
+        subtasksList.add(subtask.getTaskID());
 
+        epicUpdateStatus(epic);
+        epicUpdateDuration(epic);
+        epicUpdateDateStartAndDateEnd(epic);
     }
 
     @Override
@@ -280,10 +286,9 @@ public class FileBackedTasksManager<T extends Task> extends InMemoryTaskManager<
     }
 
     @Override
-    public Epic epicUpdateStatus(Epic epic) {
-        Epic updatedEpic = super.epicUpdateStatus(epic);
+    public void epicUpdateStatus(Epic epic) {
+        super.epicUpdateStatus(epic);
         save();
-        return updatedEpic;
     }
 
     @Override
