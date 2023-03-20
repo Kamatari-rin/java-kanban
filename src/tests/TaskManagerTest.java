@@ -19,13 +19,6 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     protected T taskManager;
     abstract void chooseTaskManager() throws IOException;
 
-    // Я не понял как перенсти папку tests и Main из папки src.
-    // IDEA при попытки сделать Refactor с переносом папки в java-kanban выдает ошибку The destination directory does not correspond to any package.
-
-
-    // Я не совсем уверен в своих знаниях по лямбдам и функциональным интерфейсам (Я не понимаю или не вижу где их можно применить),
-    // что я могу переписать в коде на лямбды или ФИ что бы потренироваться?
-
 ////////////////////////////////////////////  Create Task Test   ///////////////////////////////////////////////////////
     @Test
     void shouldCreateNewTask() throws IOException {
@@ -1009,10 +1002,13 @@ public abstract class TaskManagerTest<T extends TaskManager> {
                 LocalDateTime.of(2023, JANUARY, 2, 13, 0), 1, 25);
         Task taskThree = new Task("Задача 3", "Описание третьей задачи", Task.Status.IN_PROGRESS,
                 LocalDateTime.of(2023, JANUARY, 1, 0, 0), 1, 25);
+        Task taskThree2 = new Task("Задача 4", "Описание третьей задачи", Task.Status.IN_PROGRESS,
+                LocalDateTime.of(2023, JANUARY, 1, 0, 0), 1, 25);
 
         final int taskOneID = taskManager.createTask(taskOne);
         final int taskTwoID = taskManager.createTask(taskTwo);
         final int taskThreeID = taskManager.createTask(taskThree);
+        final int taskThree2ID = taskManager.createTask(taskThree);
 
         Set<Task> controlSet = new HashSet<>();
         controlSet.add(taskThree);
@@ -1020,8 +1016,17 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         controlSet.add(taskOne);
 
         Set<Task> prioritizedTasks = taskManager.getPrioritizedTasks();
+        Map<Integer, Task> taskMap = taskManager.getAllTask();
+        Task task = taskMap.get(1);
 
         assertNotNull(prioritizedTasks);
+        assertTrue(prioritizedTasks.contains(task), "Задача не найдена.");
         assertEquals(controlSet, prioritizedTasks);
+        assertEquals(3, taskManager.getPrioritizedTasks().size());
+
+        taskManager.deleteAllTasks();
+
+        Set<Task> shouldBeEmptyPrioritizedTasks = taskManager.getPrioritizedTasks();
+        assertEquals(0,shouldBeEmptyPrioritizedTasks.size());
     }
 }

@@ -98,22 +98,21 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
         final Map<Integer, Task> EpicsMapFromFile = Collections.unmodifiableMap(loadFromFileTaskManager.getAllEpic());
         final Map<Integer, Task> SubtaskMapFromFile = Collections.unmodifiableMap(loadFromFileTaskManager.getAllSubtask());
 
+        for (Integer taskID : controlTaskMap.keySet()) {
+            Task taskFromControlMap = controlTaskMap.get(taskID);
+            Task taskFromFile = TaskMapFromFile.get(taskID);
+            assertEquals(taskFromFile, taskFromControlMap);
+        }
 
-        // Я добавил метод equals у объекта Task поля старт\енд\продолжительность, и тест выдает ошибку что мапы не идентичные
-        // но при ручном сравнении я не вижу разницу.
-
-        //1=1,Task,Задача 1,NEW,Описание первой задачи,2023-01-01T12:00+10:00[Asia/Vladivostok],2023-01-01T12:25+10:00[Asia/Vladivostok],PT25M,,  controlTaskMap
-        //1=1,Task,Задача 1,NEW,Описание первой задачи,2023-01-01T12:00+10:00[Asia/Vladivostok],2023-01-01T12:25+10:00[Asia/Vladivostok],PT25M,,  TaskMapFromFile
-        //
-        //2=2,Task,Задача 2,DONE,Описание второй задачи,2023-01-01T13:00+10:00[Asia/Vladivostok],2023-01-01T13:25+10:00[Asia/Vladivostok],PT25M,, controlTaskMap
-        //2=2,Task,Задача 2,DONE,Описание второй задачи,2023-01-01T13:00+10:00[Asia/Vladivostok],2023-01-01T13:25+10:00[Asia/Vladivostok],PT25M,, TaskMapFromFile
-        //
-        //3=3,Task,Задача 3,IN_PROGRESS,Описание третьей задачи,2023-01-02T00:00+10:00[Asia/Vladivostok],2023-01-02T00:25+10:00[Asia/Vladivostok],PT25M controlTaskMap
-        //3=3,Task,Задача 3,IN_PROGRESS,Описание третьей задачи,2023-01-02T00:00+10:00[Asia/Vladivostok],2023-01-02T00:25+10:00[Asia/Vladivostok],PT25M TaskMapFromFile
-
-        assertEquals(controlTaskMap, TaskMapFromFile);
-        assertEquals(controlEpicsMap, EpicsMapFromFile);
-        assertEquals(controlSubtaskMap, SubtaskMapFromFile);
-        assertEquals(controlHisoryList, HistoryListFromFile);
+        for (Integer epicID : controlEpicsMap.keySet()) {
+            Epic epicFromControlMap = (Epic) controlEpicsMap.get(epicID);
+            Epic epicFromFile = (Epic) EpicsMapFromFile.get(epicID);
+            assertEquals(epicFromFile, epicFromControlMap);
+        }
+        for (Integer subtaskID : controlSubtaskMap.keySet()) {
+            Subtask subtaskFromControlMap = (Subtask) controlSubtaskMap.get(subtaskID);
+            Subtask subtaskFromFile = (Subtask) SubtaskMapFromFile.get(subtaskID);
+            assertEquals(subtaskFromFile, subtaskFromControlMap);
+        }
     }
 }

@@ -103,27 +103,29 @@ public class Task {
         this.getTaskEndTime = getTaskEndTime;
     }
 
-    public enum Status {
-        NEW,
-        IN_PROGRESS,
-        DONE
-    }
-
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        Task otherTask = (Task) obj;
-        return Objects.equals(taskName, otherTask.taskName)
-                && Objects.equals(taskDescription, otherTask.taskDescription)
-                && taskStatus == otherTask.taskStatus
-                && taskStartTime == otherTask.taskStartTime
-                && taskDuration == otherTask.taskDuration
-                && getTaskEndTime == otherTask.getTaskEndTime;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Task task = (Task) o;
+        return taskID == task.taskID
+                && Objects.equals(taskName, task.taskName)
+                && Objects.equals(taskDescription, task.taskDescription)
+                && taskStatus == task.taskStatus
+                && Objects.equals(taskStartTime, task.taskStartTime)
+                && Objects.equals(taskDuration, task.taskDuration)
+                && Objects.equals(getTaskEndTime, task.getTaskEndTime)
+                && Objects.equals(zone, task.zone) && Objects.equals(zones, task.zones);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(taskName, taskDescription, taskStatus);
+        return Objects.hash(taskName, taskDescription, taskStatus, taskID, taskStartTime, taskDuration, getTaskEndTime, zone, zones);
+    }
+
+    public enum Status {
+        NEW,
+        IN_PROGRESS,
+        DONE
     }
 }

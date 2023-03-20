@@ -15,19 +15,29 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
     protected Map<Integer, Subtask> subtasksMap = new HashMap<>();
     protected HistoryManager historyManager = Managers.getDefaultHistory();
 
-    protected Comparator<Task> comparator = (taskOne, taskTwo) -> {
-        if (taskOne.equals(taskTwo)) return 1;
+    Comparator<Task> comparator = Comparator.comparing(Task::getTaskStartTime,
+            Comparator.nullsLast(Comparator.naturalOrder())).thenComparing(Task::getTaskID);
 
-        if (taskOne.getTaskStartTime().isAfter(taskTwo.getGetTaskEndTime())
-                && taskTwo.getTaskStartTime().isBefore(taskOne.getGetTaskEndTime())) {
-            return 1;
-        } else if (taskOne.getTaskStartTime().isBefore(taskTwo.getGetTaskEndTime())
-                && taskTwo.getTaskStartTime().isAfter(taskOne.getGetTaskEndTime())) {
-            return -1;
-        } else throw new RuntimeException("Время начала выполнения пересекается " +
-                "с уже существующей задачей.");
-    };
-    protected Set<Task> prioritizedTasks = new TreeSet<>(comparator);
+
+//    protected Comparator<Task> comparator = (taskOne, taskTwo) -> {
+//        if (taskOne.equals(taskTwo)) {
+//            return 1;
+//        }
+//
+//        if (taskOne.getTaskStartTime().isAfter(taskTwo.getGetTaskEndTime())
+//                && taskTwo.getTaskStartTime().isBefore(taskOne.getGetTaskEndTime())) {
+//            return 1;
+//        } else if (taskOne.getTaskStartTime().isBefore(taskTwo.getGetTaskEndTime())
+//                && taskTwo.getTaskStartTime().isAfter(taskOne.getGetTaskEndTime())) {
+//            return -1;
+//        } else if(taskOne.getTaskID() != taskTwo.getTaskID()) {
+//            throw new RuntimeException("Время начала выполнения пересекается " +
+//                    "с уже существующей задачей.");
+//        }
+//        return 0;
+//    };
+    protected final TreeSet<Task> prioritizedTasks = new TreeSet<>(comparator);
+    //protected Set<Task> prioritizedTasks = new TreeSet<>(comparator);
     private int id = 0;
 
     //----------------------------------------------|   objects.Task   |------------------------------------------------------//
@@ -75,13 +85,13 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
     public Task getTaskById(int id) throws IOException {
         if (tasksMap.containsKey(id)) {
             historyManager.add(tasksMap.get(id));
-            return (T) tasksMap.get(id);
+            return (Task) tasksMap.get(id);
         } else if (epicsMap.containsKey(id)) {
             historyManager.add(epicsMap.get(id));
-            return (T) epicsMap.get(id);
+            return (Epic) epicsMap.get(id);
         } else if (subtasksMap.containsKey(id)) {
             historyManager.add(subtasksMap.get(id));
-            return (T) subtasksMap.get(id);
+            return (Subtask) subtasksMap.get(id);
         } else {
             throw new RuntimeException("Задача не найдена.");
         }
@@ -94,7 +104,10 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
         for (Integer taskID : tasksMap.keySet()) {
             if (historyManager.isHistoryContainsTask(taskID)) {
                 historyManager.remove(taskID);
+
             }
+            Task task = tasksMap.get(taskID);
+            prioritizedTasks.remove(task);
         }
         tasksMap.clear();
         return true;
@@ -106,6 +119,9 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
         if (tasksMap.containsKey(id)) {
             if (historyManager.isHistoryContainsTask(id)){
                 historyManager.remove(id);
+            }
+            if (prioritizedTasks.contains(tasksMap.get(id))) {
+                prioritizedTasks.remove(tasksMap.get(id));
             }
             tasksMap.remove(id);
             return true;
@@ -137,7 +153,11 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
             if (historyManager.isHistoryContainsTask(taskID)) {
                 historyManager.remove(taskID);
             }
+            if (prioritizedTasks.contains(subtasksMap.get(taskID))) {
+                prioritizedTasks.remove(subtasksMap.get(taskID));
+            }
         }
+
         subtasksMap.clear();
         epicsMap.clear();
         return true;
@@ -151,10 +171,13 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
             List<Integer> subtaskList = bufEpic.getSubtaskList();
 
             for (Integer SubtaskID : subtaskList) {
-                subtasksMap.remove(SubtaskID);
                 if (historyManager.isHistoryContainsTask(SubtaskID)) {
                     historyManager.remove(SubtaskID);
                 }
+                if (prioritizedTasks.contains(subtasksMap.get(SubtaskID))) {
+                    prioritizedTasks.remove(subtasksMap.get(SubtaskID));
+                }
+                subtasksMap.remove(SubtaskID);
             }
 
             epicsMap.remove(id);
@@ -177,10 +200,13 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
                 throw new RuntimeException("Список подзадач пуст.");
             }
             for (Integer SubtaskID : subtaskList) {
-                subtasksMap.remove(SubtaskID);
                 if (historyManager.isHistoryContainsTask(SubtaskID)) {
                     historyManager.remove(SubtaskID);
                 }
+                if (prioritizedTasks.contains(subtasksMap.get(SubtaskID))) {
+                    prioritizedTasks.remove(subtasksMap.get(SubtaskID));
+                }
+                subtasksMap.remove(SubtaskID);
             }
 
             subtaskList.clear();
@@ -290,11 +316,15 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
             List subtaskList = epicBuf.getSubtaskList();
 
             subtaskList.remove(Integer.valueOf(id));
-            subtasksMap.remove(id);
 
             if (historyManager.isHistoryContainsTask(id)){
                 historyManager.remove(id);
             }
+
+            if (prioritizedTasks.contains(subtasksMap.get(id))) {
+                prioritizedTasks.remove(subtasksMap.get(id));
+            }
+            subtasksMap.remove(id);
             return true;
         } throw new RuntimeException("Задача не найдена.");
     }
@@ -327,6 +357,10 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
 
             if (historyManager.isHistoryContainsTask(subtaskID)) {
                 historyManager.remove(subtaskID);
+            }
+
+            if (prioritizedTasks.contains(subtasksMap.get(subtaskID))) {
+                prioritizedTasks.remove(subtasksMap.get(subtaskID));
             }
         }
         subtasksMap.clear();
