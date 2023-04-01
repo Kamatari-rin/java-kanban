@@ -34,7 +34,7 @@ public class KVServer {
         server.createContext("/load", this::load);
     }
 
-    private void load(HttpExchange h) {
+    private void load(HttpExchange h) throws IOException {
         Gson gson = new Gson();
         try {
             if (!hasAuth(h)) {
@@ -45,8 +45,8 @@ public class KVServer {
             String path = h.getRequestURI().getPath();
 
             if (path.contains("key_tasks")) {
-                String tasksMap = data.get("key_tasks");
-                writeResponse(h, gson.toJson(tasksMap), 200);
+                //String tasksMap = data.get("key_tasks");
+                writeResponse(h, gson.toJson(data), 200);
             } else if (path.contains("key_epics")) {
                 String epicsMap = data.get("key_epics");
                 writeResponse(h, gson.toJson(epicsMap), 200);
@@ -58,7 +58,7 @@ public class KVServer {
                 writeResponse(h, gson.toJson(history), 200);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            writeResponse(h, "ошибка", 200);;
         } finally {
             h.close();
         }

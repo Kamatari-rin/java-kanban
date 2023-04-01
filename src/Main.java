@@ -23,9 +23,6 @@ public class Main {
         KVServer kvServer = Managers.getDefaultKVServer(hostname, KVServer_PORT);
         kvServer.start();
 
-        Gson gson = new Gson();
-        Map<Integer, Task> taskMap = new HashMap<>();
-        String map = gson.toJson(taskMap, taskMap.getClass());
 //
 //        HttpTaskManager taskManager = (HttpTaskManager) Managers.getDefault(new URL("http://" + hostname + ":" +KVServer_PORT));
 //        HttpTaskServer taskServer = Managers.getDefaultHttpTaskServer(taskManager, hostname);
