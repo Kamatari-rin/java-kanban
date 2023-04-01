@@ -14,6 +14,7 @@ import java.util.Map;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import services.taskmanagers.Managers;
 
 /**
  * Постман: https://www.getpostman.com/collections/a83b61d9e1c81c10575c
@@ -35,7 +36,7 @@ public class KVServer {
     }
 
     private void load(HttpExchange h) throws IOException {
-        Gson gson = new Gson();
+        Gson gson = Managers.getGson();
         try {
             if (!hasAuth(h)) {
                 System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
@@ -45,8 +46,8 @@ public class KVServer {
             String path = h.getRequestURI().getPath();
 
             if (path.contains("tasks")) {
-                //String tasksMap = data.get("key_tasks");
-                writeResponse(h, gson.toJson(data), 200);
+                String tasksMap = data.get("tasks");
+                writeResponse(h, gson.toJson(tasksMap), 200);
             } else if (path.contains("epics")) {
                 String epicsMap = data.get("epics");
                 writeResponse(h, gson.toJson(epicsMap), 200);

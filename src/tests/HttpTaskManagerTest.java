@@ -36,7 +36,7 @@ class HttpTaskManagerTest {
         kvServer = new KVServer();
         kvServer.start();
         url = new URL("http://localhost:" + PORT);
-        taskManager = Managers.getDefault(url);
+        taskManager = Managers.getDefault();
         taskServer = Managers.getDefaultHttpTaskServer(taskManager, "localhost");
         taskServer.start();
     }
@@ -107,6 +107,6 @@ class HttpTaskManagerTest {
 //////////////////////////////////// Востанавливаемся из KVServer //////////////////////////////////////////////////////
 
         // Не пойму как востановиться из данных на сервере.
-        new HttpTaskManager(new URL("http://localhost:8087")).load();
+        new HttpTaskManager().load();
     }
 }

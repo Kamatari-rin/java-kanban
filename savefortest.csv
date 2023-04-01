@@ -1,7 +1,7 @@
 id,type,name,status,description,start_date_time,end_date_time,duration,epic,
-3,Task,Задача 3,IN_PROGRESS,Описание третьей задачи,2023-01-02T00:00+10:00[Asia/Vladivostok],2023-01-02T00:25+10:00[Asia/Vladivostok],PT25M,
 2,Task,Задача 2,DONE,Описание второй задачи,2023-01-01T13:00+10:00[Asia/Vladivostok],2023-01-01T13:25+10:00[Asia/Vladivostok],PT25M,
 1,Task,Задача 1,NEW,Описание первой задачи,2023-01-01T12:00+10:00[Asia/Vladivostok],2023-01-01T12:25+10:00[Asia/Vladivostok],PT25M,
+3,Task,Задача 3,IN_PROGRESS,Описание третьей задачи,2023-01-02T00:00+10:00[Asia/Vladivostok],2023-01-02T00:25+10:00[Asia/Vladivostok],PT25M,
 6,Epic,Эпик 3,DONE,Описание 3 эпика,
 5,Epic,Эпик 2,IN_PROGRESS,Описание 2 эпика,
 4,Epic,Эпик 1,IN_PROGRESS,Описание 1 эпика,

@@ -44,7 +44,7 @@ class HttpTaskServerTest {
         kvServer.start();
 
         url = new URL("http://localhost:" + PORT);
-        taskManager = Managers.getDefault(url);
+        taskManager = Managers.getDefault();
         taskServer = Managers.getDefaultHttpTaskServer(taskManager, "localhost");
 
         Task taskOne = new Task("Задача 1", "Описание первой задачи", Task.Status.NEW,

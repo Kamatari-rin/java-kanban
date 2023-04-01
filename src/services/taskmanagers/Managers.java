@@ -29,8 +29,8 @@ import java.util.List;
 
 public class Managers {
 
-    public static HttpTaskManager getDefault(URL url) {
-        return new HttpTaskManager(url);
+    public static HttpTaskManager getDefault() {
+        return new HttpTaskManager();
     } // Должен возвращать HttpTaskManager
 
     public static HistoryManager getDefaultHistory() {
@@ -67,7 +67,6 @@ public class Managers {
         deserializer.registerBarnType("Task", Task.class);
 
         GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.setPrettyPrinting();
         gsonBuilder.registerTypeAdapter(ZoneId.class, new ZoneIdAdapter());
         gsonBuilder.registerTypeAdapter(ZonedDateTime.class, new ZoneDateTimeAdapter());
         gsonBuilder.registerTypeAdapter(Duration.class, new DurationAdapter());

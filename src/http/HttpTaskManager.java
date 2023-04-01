@@ -24,13 +24,13 @@ public class HttpTaskManager extends FileBackedTasksManager {
     private static KVTaskClient kvTaskClient;
     private static Gson gson;
 
-   public HttpTaskManager(URL url) {
+   public HttpTaskManager() {
        super();
        key_tasks = "tasks";
        key_epics = "epics";
        key_subtasks = "subtasks";
        key_history = "history";
-       kvTaskClient = new KVTaskClient(url);
+       kvTaskClient = new KVTaskClient();
        gson = Managers.getGson();
        gson.serializeNulls();
     }
@@ -48,31 +48,31 @@ public class HttpTaskManager extends FileBackedTasksManager {
     }
 
     public Optional<String> load() throws IOException, InterruptedException {
-        Optional<String> tasksMapJSON = null;
         try {
-            tasksMapJSON = kvTaskClient.load(key_tasks);
-            Optional<String> epicsMapJSON = kvTaskClient.load(key_epics);
-            Optional<String> subtasksMapJSON = kvTaskClient.load(key_subtasks);
-            Optional<String> historyListJSON = kvTaskClient.load(key_history);
-            if (tasksMapJSON.isPresent()) {
-                this.tasksMap = gson.fromJson(tasksMapJSON.get(), new TypeToken<Map<Integer, Task>>() {}.getType());
+            String tasksMapJSON = kvTaskClient.load(key_tasks);
+            String epicsMapJSON = kvTaskClient.load(key_epics);
+            String subtasksMapJSON = kvTaskClient.load(key_subtasks);
+            String historyListJSON = kvTaskClient.load(key_history);
+            if (tasksMapJSON != null || !tasksMapJSON.isBlank()) {
+                this.tasksMap = gson.fromJson(tasksMapJSON, new TypeToken<Map<Integer, Task>>() {}.getType());
             }
-            if (epicsMapJSON.isPresent()) {
-                this.epicsMap = gson.fromJson(epicsMapJSON.get(), new TypeToken<Map<Integer, Epic>>() {}.getType());
+            if (epicsMapJSON != null || !epicsMapJSON.isBlank()) {
+                this.epicsMap = gson.fromJson(epicsMapJSON, new TypeToken<Map<Integer, Epic>>() {}.getType());
             }
-            if (subtasksMapJSON.isPresent()) {
-                this.subtasksMap = gson.fromJson(subtasksMapJSON.get(), new TypeToken<Map<Integer, Subtask>>() {}.getType());
+            if (subtasksMapJSON != null || !subtasksMapJSON.isBlank()) {
+                this.subtasksMap = gson.fromJson(subtasksMapJSON, new TypeToken<Map<Integer, Subtask>>() {
+                }.getType());
             }
-            if (historyListJSON.isPresent()) {
+            if (historyListJSON != null || !historyListJSON.isBlank()) {
                 Type historyListType = new TypeToken<List<Task>>() {
                 }.getType();
-                List<Task> historyList = gson.fromJson(historyListJSON.get(), historyListType);
+                List<Task> historyList = gson.fromJson(historyListJSON, historyListType);
                 for (Task task : historyList) {
                     historyManager.add(task);
                 }
             }
         } catch (IOException e) {
-            System.out.println(tasksMapJSON);
+            e.getMessage();
         }
 
 

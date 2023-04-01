@@ -11,11 +11,9 @@ import java.util.Optional;
 
 public class KVTaskClient {
     private final HttpClient client;
-    private URL url;
 
-    public KVTaskClient(URL url) {
+    public KVTaskClient() {
         client = HttpClient.newHttpClient();
-        this.url = url;
     }
 
     public void put(String key, String json) throws IOException, InterruptedException {
@@ -30,7 +28,7 @@ public class KVTaskClient {
         }
     }
 
-    public Optional<String> load(String key) throws IOException, InterruptedException {
+    public String load(String key) throws IOException, InterruptedException {
         String token = getToken();
         URI url = URI.create("http://localhost:8078/load/" + key + "?API_TOKEN="+ token + "/");
         HttpRequest request = HttpRequest.newBuilder()
@@ -38,7 +36,7 @@ public class KVTaskClient {
                 .GET()
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        return Optional.ofNullable(response.body());
+        return response.body();
     }
 
     private String getToken() throws IOException, InterruptedException {
