@@ -17,13 +17,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class TaskManagerTest<T extends TaskManager> {
     protected T taskManager;
-    abstract void chooseTaskManager() throws IOException;
+    abstract void chooseTaskManager() throws IOException, InterruptedException;
 
 ////////////////////////////////////////////  Create Task Test   ///////////////////////////////////////////////////////
     @Test
-    void shouldCreateNewTask() throws IOException {
+    void shouldCreateNewTask() throws IOException, InterruptedException {
 
-        Task task = new Task("Задача 1", "Описание первой задачи", Task.Status.NEW, LocalDateTime.now(), 1, 25);
+        Task task = new Task("Задача 1", "Описание первой задачи",
+                Task.Status.NEW, LocalDateTime.now(), 1, 25);
 
         final int taskID = taskManager.createTask(task);
         final Task savedTask = taskManager.getTaskById(taskID);
@@ -40,7 +41,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
 ////////////////////////////////////////////  Create Epic Test   ///////////////////////////////////////////////////////
     @Test
-    void shouldCreateNewEpicWithEmptySubtasksList() throws IOException {
+    void shouldCreateNewEpicWithEmptySubtasksList() throws IOException, InterruptedException {
 
         Epic epic = new Epic("Эпик 1", "Описание первого эпика");
         final int epicID = taskManager.createTask(epic);
@@ -69,7 +70,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldCreateNewEpicWithNewSubtask() throws IOException {
+    void shouldCreateNewEpicWithNewSubtask() throws IOException, InterruptedException {
 
         Epic epic = new Epic("Эпик 1", "Описание первого эпика");
         final int epicID = taskManager.createTask(epic);
@@ -120,7 +121,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldCreateNewEpicWithDoneSubtasks() throws IOException {
+    void shouldCreateNewEpicWithDoneSubtasks() throws IOException, InterruptedException {
 
         Epic epic = new Epic("Эпик 1", "Описание первого эпика");
         final int epicID = taskManager.createTask(epic);
@@ -168,7 +169,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldCreateNewEpicWithNewAndDoneSubtasks() throws IOException {
+    void shouldCreateNewEpicWithNewAndDoneSubtasks() throws IOException, InterruptedException {
 
         Epic epic = new Epic("Эпик 1", "Описание первого эпика");
         final int epicID = taskManager.createTask(epic);
@@ -234,7 +235,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldCreateNewEpicWithTwoInProgressSubtasks() throws IOException {
+    void shouldCreateNewEpicWithTwoInProgressSubtasks() throws IOException, InterruptedException {
 
         Epic epic = new Epic("Эпик 1", "Описание первого эпика");
         final int epicID = taskManager.createTask(epic);
@@ -302,7 +303,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 ///////////////////////////////////////////////////  Task Test   ///////////////////////////////////////////////////////
 
     @Test
-    public void getAllTaskTest() throws IOException {
+    public void getAllTaskTest() throws IOException, InterruptedException {
         Task taskOne = new Task("Задача 1", "Описание первой задачи", Task.Status.NEW,
                 LocalDateTime.of(2023, JANUARY, 1, 12, 0), 1, 25);
         final int taskOneID = taskManager.createTask(taskOne);
@@ -341,7 +342,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void getTaskByIdTest() throws IOException {
+    public void getTaskByIdTest() throws IOException, InterruptedException {
         Task task = new Task("Задача 1", "Описание первой задачи", Task.Status.NEW,
                 LocalDateTime.of(2022, JANUARY, 1, 0, 0), 1, 25);
         final int taskID = taskManager.createTask(task);
@@ -362,7 +363,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void deleteAllTasksTest() throws IOException {
+    public void deleteAllTasksTest() throws IOException, InterruptedException {
         Task taskOne = new Task("Задача 1", "Описание первой задачи", Task.Status.NEW,
                 LocalDateTime.of(2022, JANUARY, 1, 0, 0), 1, 25);
         taskManager.createTask(taskOne);
@@ -386,7 +387,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void deleteTaskByIdTest() throws IOException {
+    public void deleteTaskByIdTest() throws IOException, InterruptedException {
         Task taskOne = new Task("Задача 1", "Описание первой задачи", Task.Status.NEW,
                 LocalDateTime.of(2022, JANUARY, 1, 0, 0), 1, 25);
         final int taskOneID = taskManager.createTask(taskOne);
@@ -425,15 +426,15 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void updateTaskTest() throws IOException {
+    public void updateTaskTest() throws IOException, InterruptedException {
         Task task = new Task("Задача 1", "Описание первой задачи", Task.Status.NEW,
                 LocalDateTime.of(2022, JANUARY, 1, 0, 0), 1, 25);
         final int taskID = taskManager.createTask(task);
 
         Task taskUpdate = new Task("Задача 1 Update", "Описание первой задачи update", Task.Status.IN_PROGRESS,
-                LocalDateTime.of(2022, JANUARY, 1, 4, 0), 1, 25);
+                LocalDateTime.of(2022, JANUARY, 1, 4, 0), 1, 25, taskID);
 
-        taskManager.updateTask(taskUpdate, taskID);
+        taskManager.updateTask(taskUpdate);
 
         Task taskUpdateGetById = taskManager.getTaskById(taskID);
 
@@ -456,7 +457,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 ///////////////////////////////////////////////////  Epic Test   ///////////////////////////////////////////////////////
 
     @Test
-    public void deleteAllEpicsTest() throws IOException {
+    public void deleteAllEpicsTest() throws IOException, InterruptedException {
         Epic epicOne = new Epic("Эпик 1", "Описание первого эпика");
         final int epicOneID = taskManager.createTask(epicOne);
         Epic epicTwo = new Epic("Эпик 1", "Описание первого эпика");
@@ -514,7 +515,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void deleteEpicByIdTest() throws IOException {
+    public void deleteEpicByIdTest() throws IOException, InterruptedException {
         Epic epicOne = new Epic("Эпик 1", "Описание первого эпика");
         final int epicOneID = taskManager.createTask(epicOne);
 
@@ -560,7 +561,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void deleteAllSubtaskInEpicTest() throws IOException {
+    public void deleteAllSubtaskInEpicTest() throws IOException, InterruptedException {
         Epic epicOne = new Epic("Эпик 1", "Описание первого эпика");
         final int epicOneID = taskManager.createTask(epicOne);
 
@@ -609,7 +610,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void deleteAllSubtaskInEpicWithEmptySubtaskListTest() throws IOException {
+    public void deleteAllSubtaskInEpicWithEmptySubtaskListTest() throws IOException, InterruptedException {
         Epic epicOne = new Epic("Эпик 1", "Описание первого эпика");
         final int epicOneID = taskManager.createTask(epicOne);
 
@@ -622,11 +623,11 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void updateEpicTest() throws IOException {
+    public void updateEpicTest() throws IOException, InterruptedException {
         Epic epic = new Epic("Эпик 1", "Описание первого эпика");
         final int epicID = taskManager.createTask(epic);
 
-        Epic epicUpdate = new Epic("Эпик 1 Update", "Описание первого эпика Update");
+        Epic epicUpdate = new Epic("Эпик 1 Update", "Описание первого эпика Update", epic.getTaskStatus(), epicID);
         Subtask subtaskOne = new Subtask("Подзадача 1 от Эпика №1", "Описание первой подзадачи от Эпика №1",
                 Task.Status.NEW, epicID, LocalDateTime.of(2022, JANUARY, 2, 0, 0), 1, 15);
         Subtask subtaskTwo = new Subtask("Подзадача 2 от Эпика №1", "Описание второй подзадачи от Эпика №1",
@@ -634,7 +635,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.createTask(subtaskOne);
         taskManager.createTask(subtaskTwo);
 
-        taskManager.updateEpic(epicUpdate, epicID);
+        taskManager.updateEpic(epicUpdate);
 
         Epic epicUpdateFromGetByID = (Epic) taskManager.getTaskById(epicID);
         assertEquals(epicUpdate, epicUpdateFromGetByID);
@@ -647,14 +648,14 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         int incorrectID = 7;
         final RuntimeException exception = assertThrows(
                 RuntimeException.class,
-                () -> taskManager.updateEpic(epicUpdate, incorrectID)
+                () -> taskManager.updateEpic(epicUpdate)
         );
 
         assertEquals("Задача не найдена.", exception.getMessage());
     }
 
     @Test
-    public void getAllSubtaskByEpicIDTest() throws IOException {
+    public void getAllSubtaskByEpicIDTest() throws IOException, InterruptedException {
         Epic epicOne = new Epic("Эпик 1", "Описание первого эпика");
         final int epicOneID = taskManager.createTask(epicOne);
 
@@ -678,7 +679,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void getAllSubtaskByEpicIDWithIncorrectEpicIdTest() throws IOException {
+    public void getAllSubtaskByEpicIDWithIncorrectEpicIdTest() throws IOException, InterruptedException {
         Epic epic = new Epic("Эпик 1", "Описание первого эпика");
         final int epicID = taskManager.createTask(epic);
 
@@ -703,7 +704,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void getAllSubtaskByEpicIDWithNoSubtaskInEpicTest() throws IOException {
+    public void getAllSubtaskByEpicIDWithNoSubtaskInEpicTest() throws IOException, InterruptedException {
         Epic epic = new Epic("Эпик 1", "Описание первого эпика");
         final int epicID = taskManager.createTask(epic);
 
@@ -716,7 +717,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void getAllEpicTest() throws IOException {
+    public void getAllEpicTest() throws IOException, InterruptedException {
         Epic epicOne = new Epic("Эпик 1", "Описание первого эпика");
         Epic epicTwo = new Epic("Эпик 1", "Описание первого эпика");
         Epic epicThree = new Epic("Эпик 1", "Описание первого эпика");
@@ -786,7 +787,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 ////////////////////////////////////////////////  Subtask Test   ///////////////////////////////////////////////////////
 
     @Test
-    public void deleteSubtaskByIdTest() throws IOException {
+    public void deleteSubtaskByIdTest() throws IOException, InterruptedException {
         Epic epic = new Epic("Эпик 1", "Описание первого эпика");
         final int epicID = taskManager.createTask(epic);
 
@@ -824,7 +825,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void updateSubtaskTest() throws IOException {
+    public void updateSubtaskTest() throws IOException, InterruptedException {
         Epic epic = new Epic("Эпик 1", "Описание первого эпика");
         final int epicID = taskManager.createTask(epic);
 
@@ -833,8 +834,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         final int subtaskID = taskManager.createTask(subtask);
 
         Subtask subtaskUpdate = new Subtask("Подзадача 1 от Эпика №1 Update", "Описание первой подзадачи от Эпика №1 Update",
-                Task.Status.IN_PROGRESS, epicID, LocalDateTime.of(2022, JANUARY, 1, 0, 0), 1, 45);
-        taskManager.updateSubtask(subtaskUpdate, subtaskID);
+                Task.Status.IN_PROGRESS, epicID, LocalDateTime.of(2022, JANUARY, 1, 0, 0), 1, 45, subtaskID);
+        taskManager.updateSubtask(subtaskUpdate);
 
         final Map<Integer, Subtask> subtasksMap = Collections.unmodifiableMap(taskManager.getAllSubtask());
         final Map<Integer, Epic> epicsMap = Collections.unmodifiableMap(taskManager.getAllEpic());
@@ -865,7 +866,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void deleteAllSubtaskTest() throws IOException {
+    public void deleteAllSubtaskTest() throws IOException, InterruptedException {
         Epic epicOne = new Epic("Эпик 1", "Описание первого эпика");
         Epic epicTwo = new Epic("Эпик 1", "Описание первого эпика");
         Epic epicThree = new Epic("Эпик 1", "Описание первого эпика");
@@ -942,7 +943,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void getAllSubtaskTaskTest() throws IOException {
+    public void getAllSubtaskTaskTest() throws IOException, InterruptedException {
         Epic epicOne = new Epic("Эпик 1", "Описание первого эпика");
         Epic epicTwo = new Epic("Эпик 1", "Описание первого эпика");
         Epic epicThree = new Epic("Эпик 1", "Описание первого эпика");
@@ -995,7 +996,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void getPrioritizedTasksTest() throws IOException {
+    public void getPrioritizedTasksTest() throws IOException, InterruptedException {
         Task taskOne = new Task("Задача 1", "Описание первой задачи", Task.Status.NEW,
                 LocalDateTime.of(2023, JANUARY, 3, 12, 0), 1, 25);
         Task taskTwo = new Task("Задача 2", "Описание второй задачи", Task.Status.DONE,

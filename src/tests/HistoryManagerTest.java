@@ -18,11 +18,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class HistoryManagerTest<T extends HistoryManager> {
     protected HistoryManager historyManager;
-    protected TaskManager taskManager = Managers.loadFromFile(Paths.get("savefortest.csv"));
+    protected TaskManager taskManager;
+
+    public HistoryManagerTest() throws IOException, InterruptedException {
+        this.taskManager = Managers.loadFromFile(Paths.get("savefortest.csv"));
+    }
+
     abstract void getHistoryManager();
 
     @Test
-    void add() throws IOException {
+    void add() throws IOException, InterruptedException {
         Task task = new Task("Задача 1", "Описание первой задачи", Task.Status.NEW, LocalDateTime.now(), 1, 25);
         taskManager.createTask(task);
         historyManager.add(task);
@@ -38,7 +43,7 @@ public abstract class HistoryManagerTest<T extends HistoryManager> {
     }
 
     @Test
-    void getHistory() throws IOException {
+    void getHistory() throws IOException, InterruptedException {
         final Map<Integer, Task> controlTaskMap = new HashMap<>();
 
         Task taskOne = new Task("Задача 1", "Описание 1 задачи", Task.Status.NEW,
@@ -115,7 +120,7 @@ public abstract class HistoryManagerTest<T extends HistoryManager> {
     }
 
     @Test
-    void removeFirst() throws IOException {
+    void removeFirst() throws IOException, InterruptedException {
         Task taskFirst = new Task("Задача 1", "Описание первой задачи", Task.Status.NEW,
                 LocalDateTime.of(2022, JANUARY, 1, 0, 0), 1, 25);
         final int taskFirstID = taskManager.createTask(taskFirst);
@@ -137,7 +142,7 @@ public abstract class HistoryManagerTest<T extends HistoryManager> {
     }
 
     @Test
-    void removeCenterElement() throws IOException {
+    void removeCenterElement() throws IOException, InterruptedException {
         Task taskFirst = new Task("Задача First", "Описание первой задачи", Task.Status.NEW,
                 LocalDateTime.of(2022, JANUARY, 1, 0, 0), 1, 25);
         final int taskFirstID = taskManager.createTask(taskFirst);
@@ -159,7 +164,7 @@ public abstract class HistoryManagerTest<T extends HistoryManager> {
     }
 
     @Test
-    void removeLastElement() throws IOException {
+    void removeLastElement() throws IOException, InterruptedException {
         Task taskFirst = new Task("Задача First", "Описание первой задачи", Task.Status.NEW,
                 LocalDateTime.of(2022, JANUARY, 1, 0, 0), 1, 25);
         final int taskFirstID = taskManager.createTask(taskFirst);
@@ -202,7 +207,7 @@ public abstract class HistoryManagerTest<T extends HistoryManager> {
     }
 
     @Test
-    void isHistoryContainsTask() throws IOException {
+    void isHistoryContainsTask() throws IOException, InterruptedException {
         Task task = new Task("Задача 1", "Описание первой задачи", Task.Status.NEW, LocalDateTime.now(), 1, 25);
         final int taskID = taskManager.createTask(task);
         final int incorrectID = 2;

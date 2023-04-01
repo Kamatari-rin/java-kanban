@@ -24,13 +24,15 @@ public class FileBackedTasksManager<T extends Task> extends InMemoryTaskManager<
 
     private  Path userData;
 
-    public FileBackedTasksManager(Path path) {
+    public FileBackedTasksManager(Path path) throws IOException, InterruptedException {
         userData = path;
-        if (Files.exists(path)) loadFromFile(path);
+        if (Files.exists(path)) load(path);
     }
 
+    protected FileBackedTasksManager() {}
+
     ///////////////////////////////////////////// Запись в Файл ////////////////////////////////////////////////////////
-    public void save() {
+    protected void save() throws IOException, InterruptedException {
         createFile(this.userData);
 
         final List<String> tasksList = new ArrayList<>();
@@ -104,7 +106,7 @@ public class FileBackedTasksManager<T extends Task> extends InMemoryTaskManager<
     ///////////////////////////////////////////// Востановление из Файла ///////////////////////////////////////////////
     //  0  1    2      3        4            5              6           7      8
     // id,type,name,status,description,start_date_time,end_date_time,duration,epic,
-    public void loadFromFile(Path path) {
+    public void load(Path path) throws IOException, InterruptedException {
         List<String> dataFromFile = writeDataFromFileInList(path);
 
         for (String data : dataFromFile) {
@@ -202,15 +204,7 @@ public class FileBackedTasksManager<T extends Task> extends InMemoryTaskManager<
         }
     }
 
-//    private void putSubtasksListOnEpic(Map<Integer, Epic> epicsMap, Map<Integer, List<Integer>> subtasksByEpic) {
-//        for (Integer epicID : subtasksByEpic.keySet()) {
-//            Epic epic = epicsMap.get(epicID);
-//            epic.setSubtaskList(subtasksByEpic.get(epicID));
-//            epicUpdateStatus(epic);
-//        }
-//    }
-
-    private void setSubtasksInEpic(Task task) {
+    private void setSubtasksInEpic(Task task) throws IOException, InterruptedException {
         Subtask subtask = (Subtask) task;
         int EpicID = subtask.getEpicID();
         Epic epic = epicsMap.get(EpicID);
@@ -223,90 +217,90 @@ public class FileBackedTasksManager<T extends Task> extends InMemoryTaskManager<
     }
 
     @Override
-    public int createTask(T task) throws IOException {
+    public int createTask(T task) throws IOException, InterruptedException {
         int taskID = super.createTask(task);
         save();
         return taskID;
     }
 
     @Override
-    public Task getTaskById(int id) throws IOException {
+    public Task getTaskById(int id) throws IOException, InterruptedException {
         Task task = super.getTaskById(id);
         save();
         return task;
     }
 
     @Override
-    public boolean deleteAllTasks() throws IOException {
+    public boolean deleteAllTasks() throws IOException, InterruptedException {
         boolean isDeleted = super.deleteAllTasks();
         save();
         return isDeleted;
     }
 
     @Override
-    public boolean deleteTaskById(int id) throws IOException {
+    public boolean deleteTaskById(int id) throws IOException, InterruptedException {
         boolean isDeleted = super.deleteTaskById(id);
         save();
         return isDeleted;
     }
 
     @Override
-    public boolean updateTask(Task task, int oldTaskID) throws IOException {
-        boolean isDeleted = super.updateTask(task, oldTaskID);
+    public boolean updateTask(Task task) throws IOException, InterruptedException {
+        boolean isDeleted = super.updateTask(task);
         save();
         return isDeleted;
     }
 
     @Override
-    public boolean deleteAllEpics() throws IOException {
+    public boolean deleteAllEpics() throws IOException, InterruptedException {
         boolean isDeleted = super.deleteAllEpics();
         save();
         return isDeleted;
     }
 
     @Override
-    public boolean deleteEpicById(int id) throws IOException {
+    public boolean deleteEpicById(int id) throws IOException, InterruptedException {
         boolean isDeleted = super.deleteEpicById(id);
         save();
         return isDeleted;
     }
 
     @Override
-    public boolean deleteAllSubtaskInEpic(int id) throws IOException {
+    public boolean deleteAllSubtaskInEpic(int id) throws IOException, InterruptedException {
         boolean isDeleted = super.deleteAllSubtaskInEpic(id);
         save();
         return isDeleted;
     }
 
     @Override
-    public boolean updateEpic(Epic epic, int oldEpicID) throws IOException {
-        boolean isUpdated = super.updateEpic(epic, oldEpicID);
+    public boolean updateEpic(Epic epic) throws IOException, InterruptedException {
+        boolean isUpdated = super.updateEpic(epic);
         save();
         return isUpdated;
     }
 
     @Override
-    public void epicUpdateStatus(Epic epic) {
+    public void epicUpdateStatus(Epic epic) throws IOException, InterruptedException {
         super.epicUpdateStatus(epic);
         save();
     }
 
     @Override
-    public boolean deleteSubtaskById(int id) throws IOException {
+    public boolean deleteSubtaskById(int id) throws IOException, InterruptedException {
         boolean isDeleted = super.deleteSubtaskById(id);
         save();
         return isDeleted;
     }
 
     @Override
-    public boolean updateSubtask(Subtask subtask, int oldSubtaskID) throws IOException {
-        boolean isUpdated = super.updateSubtask(subtask, oldSubtaskID);
+    public boolean updateSubtask(Subtask subtask) throws IOException, InterruptedException {
+        boolean isUpdated = super.updateSubtask(subtask);
         save();
         return isUpdated;
     }
 
     @Override
-    public boolean deleteAllSubtask() throws IOException {
+    public boolean deleteAllSubtask() throws IOException, InterruptedException {
         boolean isDeleted = super.deleteAllSubtask();
         save();
         return isDeleted;

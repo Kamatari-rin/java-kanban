@@ -15,35 +15,16 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
     protected Map<Integer, Subtask> subtasksMap = new HashMap<>();
     protected HistoryManager historyManager = Managers.getDefaultHistory();
 
-    Comparator<Task> comparator = Comparator.comparing(Task::getTaskStartTime,
+    protected Comparator<Task> comparator = Comparator.comparing(Task::getTaskStartTime,
             Comparator.nullsLast(Comparator.naturalOrder())).thenComparing(Task::getTaskID);
 
-
-//    protected Comparator<Task> comparator = (taskOne, taskTwo) -> {
-//        if (taskOne.equals(taskTwo)) {
-//            return 1;
-//        }
-//
-//        if (taskOne.getTaskStartTime().isAfter(taskTwo.getGetTaskEndTime())
-//                && taskTwo.getTaskStartTime().isBefore(taskOne.getGetTaskEndTime())) {
-//            return 1;
-//        } else if (taskOne.getTaskStartTime().isBefore(taskTwo.getGetTaskEndTime())
-//                && taskTwo.getTaskStartTime().isAfter(taskOne.getGetTaskEndTime())) {
-//            return -1;
-//        } else if(taskOne.getTaskID() != taskTwo.getTaskID()) {
-//            throw new RuntimeException("Время начала выполнения пересекается " +
-//                    "с уже существующей задачей.");
-//        }
-//        return 0;
-//    };
     protected final TreeSet<Task> prioritizedTasks = new TreeSet<>(comparator);
-    //protected Set<Task> prioritizedTasks = new TreeSet<>(comparator);
     private int id = 0;
 
     //----------------------------------------------|   objects.Task   |------------------------------------------------------//
     // Создание объекта objects.Task
     @Override
-    public int createTask(T task) throws IOException, RuntimeException {
+    public int createTask(T task) throws IOException, RuntimeException, InterruptedException {
         task.setTaskID(++id);
 
         String taskClass = "";
@@ -82,7 +63,7 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
 
     // Получение задачи по идентификатору
     @Override
-    public Task getTaskById(int id) throws IOException {
+    public Task getTaskById(int id) throws IOException, InterruptedException {
         if (tasksMap.containsKey(id)) {
             historyManager.add(tasksMap.get(id));
             return (Task) tasksMap.get(id);
@@ -99,7 +80,7 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
 
     // Удаление всех задач objects.Task
     @Override
-    public boolean deleteAllTasks() throws IOException {
+    public boolean deleteAllTasks() throws IOException, InterruptedException {
         if (tasksMap.isEmpty()) throw new RuntimeException("Список задач пуст.");
         for (Integer taskID : tasksMap.keySet()) {
             if (historyManager.isHistoryContainsTask(taskID)) {
@@ -115,7 +96,7 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
 
     // Удаление objects.Task по идентификатору
     @Override
-    public boolean deleteTaskById(int id) throws IOException {
+    public boolean deleteTaskById(int id) throws IOException, InterruptedException {
         if (tasksMap.containsKey(id)) {
             if (historyManager.isHistoryContainsTask(id)){
                 historyManager.remove(id);
@@ -130,10 +111,9 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
 
     // Обновление Task/Epic/Subtask
     @Override
-    public boolean updateTask(Task task, int oldTaskID) throws IOException {
-        if (!tasksMap.containsKey(oldTaskID)) throw new RuntimeException("Задача не найдена.");
-        task.setTaskID(oldTaskID);
-        tasksMap.put(oldTaskID, task);
+    public boolean updateTask(Task task) throws IOException, InterruptedException {
+        if (!tasksMap.containsKey(task.getTaskID())) throw new RuntimeException("Задача не найдена.");
+        tasksMap.put(task.getTaskID(), task);
         return true;
     }
 
@@ -141,7 +121,7 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
 
     // Удаление всех objects.Epic задач
     @Override
-    public boolean deleteAllEpics() throws IOException {
+    public boolean deleteAllEpics() throws IOException, InterruptedException {
         if (epicsMap.isEmpty()) throw new RuntimeException("Список Epic задач пуст");
 
         for (Integer taskID : epicsMap.keySet()) {
@@ -165,7 +145,7 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
 
     // Удаление objects.Epic задачи по идентификатору
     @Override
-    public boolean deleteEpicById(final int id) throws IOException {
+    public boolean deleteEpicById(final int id) throws IOException, InterruptedException {
         if (epicsMap.containsKey(id)) {
             Epic bufEpic = (Epic) epicsMap.get(id);
             List<Integer> subtaskList = bufEpic.getSubtaskList();
@@ -192,7 +172,7 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
 
     // Удаление всех objects.Subtask задач в выбранном objects.Epic
     @Override
-    public boolean deleteAllSubtaskInEpic(int id) throws IOException {
+    public boolean deleteAllSubtaskInEpic(int id) throws IOException, InterruptedException {
         if (epicsMap.containsKey(id)) {
             Epic bufEpic = (Epic) epicsMap.get(id);
             List<Integer> subtaskList = bufEpic.getSubtaskList();
@@ -216,17 +196,16 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
 
     // Обновление objects.Epic
     @Override
-    public boolean updateEpic(Epic epic, int oldEpicID) throws IOException {
-        if (!epicsMap.containsKey(oldEpicID)) throw new RuntimeException("Задача не найдена.");
-        epic.setTaskID(oldEpicID);
+    public boolean updateEpic(Epic epic) throws IOException, InterruptedException {
+        if (!epicsMap.containsKey(epic.getTaskID())) throw new RuntimeException("Задача не найдена.");
         epicUpdateStatus(epic);
         epicUpdateDuration(epic);
         epicUpdateDateStartAndDateEnd(epic);
-        epicsMap.put(oldEpicID, epic);
+        epicsMap.put(epic.getTaskID(), epic);
         return true;
     }
 
-    protected void epicUpdateStatus(Epic epic) {
+    protected void epicUpdateStatus(Epic epic) throws IOException, InterruptedException {
 
         Map<Integer, Subtask> thisEpicSubtaskMap = getAllSubtaskByEpicID(epic.getTaskID());
         boolean areThereNewOrProgressSubtask = areThereAnyNewOrProgressSubtasks(thisEpicSubtaskMap);
@@ -261,6 +240,7 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
             Subtask subtask = subtasksMap.get(subtaskID);
             if (epic.getTaskStartTime() == null || epic.getTaskStartTime().isAfter(subtask.getTaskStartTime())) {
                 epic.setTaskStartTime(subtask.getTaskStartTime());
+                epic.setZoneID(subtask.getSubtaskZoneID());
             }
             if (epic.getGetTaskEndTime() == null || epic.getGetTaskEndTime().isAfter(subtask.getGetTaskEndTime())) {
                 epic.setGetTaskEndTime(subtask.getGetTaskEndTime());
@@ -308,7 +288,7 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
 
     // Удаление objects.Subtask задачи по идентификатору
     @Override
-    public boolean deleteSubtaskById(int id) throws IOException {
+    public boolean deleteSubtaskById(int id) throws IOException, InterruptedException {
         if (subtasksMap.containsKey(id)) {
             Subtask bufSubtask = (Subtask) subtasksMap.get(id);
             int epicID = bufSubtask.getEpicID();
@@ -331,11 +311,10 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
 
     // Обновление objects.Subtask
     @Override
-    public boolean updateSubtask(Subtask subtask, int oldSubtaskID) throws IOException {
-        if (!subtasksMap.containsKey(oldSubtaskID)) throw new RuntimeException("Задача не найдена.");
+    public boolean updateSubtask(Subtask subtask) throws IOException, InterruptedException {
+        if (!subtasksMap.containsKey(subtask.getTaskID())) throw new RuntimeException("Задача не найдена.");
 
-        subtask.setTaskID(oldSubtaskID);
-        subtasksMap.put(oldSubtaskID, subtask);
+        subtasksMap.put(subtask.getTaskID(), subtask);
 
         Epic epic = epicsMap.get(subtask.getEpicID());
         epicUpdateStatus(epic);
@@ -345,7 +324,7 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
 
     // Удаление всех objects.Subtask
     @Override
-    public boolean deleteAllSubtask() throws IOException {
+    public boolean deleteAllSubtask() throws IOException, InterruptedException {
         if (subtasksMap.isEmpty()) throw new RuntimeException("Список подзадач пуст.");
         for (Integer subtaskID: subtasksMap.keySet()) {
             Subtask subtask = (Subtask) subtasksMap.get(subtaskID);
@@ -381,10 +360,5 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
     @Override
     public Set<Task> getPrioritizedTasks() {
         return prioritizedTasks;
-    }
-
-    @Override
-    public void save() throws IOException {
-
     }
 }

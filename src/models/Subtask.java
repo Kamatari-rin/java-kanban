@@ -18,6 +18,22 @@ public class Subtask extends Task {
             int durationInMinutes) {
         super(taskName, taskDescription, taskStatus, taskStartTime, zoneID, durationInMinutes);
         this.epicID = epicID;
+        type = "Subtask";
+    }
+
+    public Subtask(
+            String taskName,
+            String taskDescription,
+            Status taskStatus,
+            int epicID,
+            LocalDateTime taskStartTime,
+            int zoneID,
+            int durationInMinutes,
+            int id) {
+        super(taskName, taskDescription, taskStatus, taskStartTime, zoneID, durationInMinutes);
+        this.epicID = epicID;
+        this.taskID = id;
+        type = "Subtask";
     }
 
     public Subtask(
@@ -31,6 +47,7 @@ public class Subtask extends Task {
             Duration duration) {
         super(taskName, taskDescription, taskStatus, taskStartTime, taskEndTime, zoneID, duration);
         this.epicID = epicID;
+        type = "Subtask";
     }
 
     public int getEpicID() {
@@ -44,6 +61,9 @@ public class Subtask extends Task {
 
     public Duration getSubtaskDuration() {
         return taskDuration;
+    }
+    public ZoneId getSubtaskZoneID() {
+        return zone;
     }
 
     @Override

@@ -18,11 +18,13 @@ public class Task {
 
     protected ZoneId zone;
     protected final List<String> zones = Arrays.asList("America/New_York", "Asia/Vladivostok", "Europe/Moscow");
+    protected String type;
 
     public Task(String taskName, String taskDescription, Status status) {
         this.taskName = taskName;
         this.taskDescription = taskDescription;
         this.taskStatus = status;
+        this.type = "Task";
     }
 
     public Task(String taskName,
@@ -39,7 +41,28 @@ public class Task {
         this.taskStartTime = ZonedDateTime.of(taskStartTime, zone);
         this.taskDuration = Duration.ofMinutes(durationInMinutes);
         this.getTaskEndTime = this.taskStartTime.plus(taskDuration);
+        this.type = "Task";
     }
+
+    public Task(String taskName,
+                String taskDescription,
+                Status taskStatus,
+                LocalDateTime taskStartTime,
+                int zoneID,
+                int durationInMinutes,
+                int id
+    ) {
+        this.taskName = taskName;
+        this.taskDescription = taskDescription;
+        this.taskStatus = taskStatus;
+        this.zone = ZoneId.of(zones.get(zoneID));
+        this.taskStartTime = ZonedDateTime.of(taskStartTime, zone);
+        this.taskDuration = Duration.ofMinutes(durationInMinutes);
+        this.getTaskEndTime = this.taskStartTime.plus(taskDuration);
+        this.taskID = id;
+        this.type = "Task";
+    }
+
     public Task(String taskName,
                 String taskDescription,
                 Status taskStatus,
@@ -55,6 +78,7 @@ public class Task {
         this.taskStartTime = taskStartTime;
         this.taskDuration = duration;
         this.getTaskEndTime = taskEndTime;
+        this.type = "Task";
     }
 
     public void setTaskID(int taskID) {

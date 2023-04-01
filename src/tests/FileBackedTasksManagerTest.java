@@ -23,14 +23,14 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
 
     @BeforeEach
     @Override
-    void chooseTaskManager() throws IOException {
+    void chooseTaskManager() throws IOException, InterruptedException {
         if (Files.exists(Paths.get(("savefortest.csv")))) Files.delete(Paths.get(("savefortest.csv")));
         Path saveForTest = Paths.get("savefortest.csv");
         taskManager = new FileBackedTasksManager(saveForTest);
     }
 
     @Test
-    void WriteAndReadFromFile() throws IOException {
+    void WriteAndReadFromFile() throws IOException, InterruptedException {
 
         Path saveForTest = Paths.get("savefortest.csv");
 
