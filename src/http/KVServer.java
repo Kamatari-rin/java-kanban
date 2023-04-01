@@ -44,17 +44,17 @@ public class KVServer {
             }
             String path = h.getRequestURI().getPath();
 
-            if (path.contains("key_tasks")) {
+            if (path.contains("tasks")) {
                 //String tasksMap = data.get("key_tasks");
                 writeResponse(h, gson.toJson(data), 200);
-            } else if (path.contains("key_epics")) {
-                String epicsMap = data.get("key_epics");
+            } else if (path.contains("epics")) {
+                String epicsMap = data.get("epics");
                 writeResponse(h, gson.toJson(epicsMap), 200);
-            } else if (path.contains("key_subtasks")) {
-                String subtasksMap = data.get("key_subtasks");
+            } else if (path.contains("subtasks")) {
+                String subtasksMap = data.get("subtasks");
                 writeResponse(h, gson.toJson(subtasksMap), 200);
-            } else if (path.contains("key_history")) {
-                String history = data.get("key_history");
+            } else if (path.contains("history")) {
+                String history = data.get("history");
                 writeResponse(h, gson.toJson(history), 200);
             }
         } catch (Exception e) {

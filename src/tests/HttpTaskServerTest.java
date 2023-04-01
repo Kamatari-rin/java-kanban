@@ -1,7 +1,10 @@
-package http;
+package tests;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import http.HttpTaskManager;
+import http.HttpTaskServer;
+import http.KVServer;
 import models.Subtask;
 import models.Task;
 import models.Epic;

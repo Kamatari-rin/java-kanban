@@ -20,8 +20,8 @@ public class Main {
         final String hostname = "localhost";
         final int KVServer_PORT = 8078;
 
-        KVServer kvServer = Managers.getDefaultKVServer(hostname, KVServer_PORT);
-        kvServer.start();
+//        KVServer kvServer = Managers.getDefaultKVServer(hostname, KVServer_PORT);
+//        kvServer.start();
 
 //
 //        HttpTaskManager taskManager = (HttpTaskManager) Managers.getDefault(new URL("http://" + hostname + ":" +KVServer_PORT));

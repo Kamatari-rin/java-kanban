@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public class KVTaskClient {
     private final HttpClient client;
-    private final URL url;
+    private URL url;
 
     public KVTaskClient(URL url) {
         client = HttpClient.newHttpClient();
@@ -26,8 +26,7 @@ public class KVTaskClient {
                     .uri(url)
                     .POST(HttpRequest.BodyPublishers.ofString(json))
                     .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
+            client.send(request, HttpResponse.BodyHandlers.ofString());
         }
     }
 

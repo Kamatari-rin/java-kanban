@@ -1,6 +1,9 @@
-package http;
+package tests;
 
 import com.google.gson.Gson;
+import http.HttpTaskManager;
+import http.HttpTaskServer;
+import http.KVServer;
 import models.Epic;
 import models.Subtask;
 import models.Task;
@@ -104,7 +107,6 @@ class HttpTaskManagerTest {
 //////////////////////////////////// Востанавливаемся из KVServer //////////////////////////////////////////////////////
 
         // Не пойму как востановиться из данных на сервере.
-        TaskManager newTaskManager = new HttpTaskManager(new URL("http://localhost:8087"));
-        ((HttpTaskManager) newTaskManager).load();
+        new HttpTaskManager(new URL("http://localhost:8087")).load();
     }
 }
