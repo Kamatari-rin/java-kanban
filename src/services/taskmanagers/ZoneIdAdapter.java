@@ -6,9 +6,6 @@ import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
-
-import static java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME;
 
 public class ZoneIdAdapter extends TypeAdapter<ZoneId> {
 

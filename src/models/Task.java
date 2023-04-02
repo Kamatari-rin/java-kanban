@@ -147,6 +147,18 @@ public class Task {
         return Objects.hash(taskName, taskDescription, taskStatus, taskID, taskStartTime, taskDuration, getTaskEndTime, zone, zones);
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public Duration getTaskDuration() {
+        return taskDuration;
+    }
+
+    public ZoneId getZone() {
+        return zone;
+    }
+
     public enum Status {
         NEW,
         IN_PROGRESS,

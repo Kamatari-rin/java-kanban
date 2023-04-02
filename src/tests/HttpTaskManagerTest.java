@@ -8,11 +8,9 @@ import models.Epic;
 import models.Subtask;
 import models.Task;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import services.taskmanagers.Managers;
-import services.taskmanagers.TaskManager;
 
 import java.io.IOException;
 import java.net.URL;
@@ -21,7 +19,6 @@ import java.util.*;
 
 import static java.time.Month.JANUARY;
 import static java.util.Calendar.JULY;
-import static org.junit.jupiter.api.Assertions.*;
 
 class HttpTaskManagerTest {
     private final int PORT = 8080;

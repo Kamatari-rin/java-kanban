@@ -8,6 +8,7 @@ import com.sun.net.httpserver.HttpServer;
 import models.Epic;
 import models.Subtask;
 import models.Task;
+import services.taskmanagers.Constants;
 import services.taskmanagers.Managers;
 import services.taskmanagers.TaskManager;
 
@@ -16,17 +17,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
 import java.util.regex.Pattern;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class HttpTaskServer implements HttpHandler {
-    private static final int PORT = 8080;
-    private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
     private HttpServer server;
     private Gson gson;
 
@@ -35,7 +29,7 @@ public class HttpTaskServer implements HttpHandler {
     public HttpTaskServer(HttpTaskManager taskManager, String hostname) throws IOException {
         this.taskManager = taskManager;
         gson = Managers.getGson();
-        server = HttpServer.create(new InetSocketAddress(hostname, PORT), 0);
+        server = HttpServer.create(new InetSocketAddress(hostname, Constants.PORT_HTTP_TASK_SERVER), 0);
         server.createContext("/tasks/task/", this::taskHandle);
         server.createContext("/epics/epic/", this::epicHandle);
         server.createContext("/subtasks/subtask/", this::subtaskHandle);
@@ -80,7 +74,7 @@ public class HttpTaskServer implements HttpHandler {
                 }
             } else if (requestMethod.equals("POST") || requestMethod.equals("PUT")) {
                 InputStream inputStream = exchange.getRequestBody();
-                String body = new String(inputStream.readAllBytes(), DEFAULT_CHARSET);
+                String body = new String(inputStream.readAllBytes(), Constants.DEFAULT_CHARSET);
                 try {
                     task = gson.fromJson(body, Task.class);
                 } catch (JsonSyntaxException e) {
@@ -152,7 +146,7 @@ public class HttpTaskServer implements HttpHandler {
                 }
             } else if (requestMethod.equals("POST") || requestMethod.equals("PUT")) {
                 InputStream inputStream = exchange.getRequestBody();
-                String body = new String(inputStream.readAllBytes(), DEFAULT_CHARSET);
+                String body = new String(inputStream.readAllBytes(), Constants.DEFAULT_CHARSET);
                 try {
                     task = gson.fromJson(body, Subtask.class);
                 } catch (JsonSyntaxException e) {
@@ -226,7 +220,7 @@ public class HttpTaskServer implements HttpHandler {
                 }
             } else if (requestMethod.equals("POST") || requestMethod.equals("PUT")) {
                 InputStream inputStream = exchange.getRequestBody();
-                String body = new String(inputStream.readAllBytes(), DEFAULT_CHARSET);
+                String body = new String(inputStream.readAllBytes(), Constants.DEFAULT_CHARSET);
                 try {
                     task = gson.fromJson(body, Epic.class);
                 } catch (JsonSyntaxException e) {
@@ -290,14 +284,14 @@ public class HttpTaskServer implements HttpHandler {
     }
 
     public void start() {
-        System.out.println("Запускаем сервер на порту " + PORT);
-        System.out.println("Открой в браузере http://localhost:" + PORT + "/");
+        System.out.println("Запускаем сервер на порту " + Constants.PORT_HTTP_TASK_SERVER);
+        System.out.println("Открой в браузере http://localhost:" + Constants.PORT_HTTP_TASK_SERVER + "/");
         server.start();
     }
 
     public void stop() {
         server.stop(0);
-        System.out.println("Остановили сервер на порту " + PORT);
+        System.out.println("Остановили сервер на порту " + Constants.PORT_HTTP_TASK_SERVER);
     }
 
     private void writeResponse(HttpExchange exchange,
@@ -306,7 +300,7 @@ public class HttpTaskServer implements HttpHandler {
         if (responseString.isBlank()) {
             exchange.sendResponseHeaders(responseCode, 0);
         } else {
-            byte[] bytes = responseString.getBytes(DEFAULT_CHARSET);
+            byte[] bytes = responseString.getBytes(Constants.DEFAULT_CHARSET);
             exchange.sendResponseHeaders(responseCode, bytes.length);
             try (OutputStream os = exchange.getResponseBody()) {
                 os.write(bytes);
@@ -316,11 +310,11 @@ public class HttpTaskServer implements HttpHandler {
     }
 
     protected String readText(HttpExchange h) throws IOException {
-        return new String(h.getRequestBody().readAllBytes(), UTF_8);
+        return new String(h.getRequestBody().readAllBytes(), Constants.DEFAULT_CHARSET);
     }
 
     protected void sendText(HttpExchange h, String text) throws IOException {
-        byte[] resp = text.getBytes(UTF_8);
+        byte[] resp = text.getBytes(Constants.DEFAULT_CHARSET);
         h.getResponseHeaders().add("Content-Type", "application/json;charset=utf-8");
         h.sendResponseHeaders(200, resp.length);
         h.getResponseBody().write(resp);

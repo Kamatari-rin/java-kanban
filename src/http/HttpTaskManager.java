@@ -9,8 +9,6 @@ import models.Task;
 import services.taskmanagers.Managers;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,7 +30,6 @@ public class HttpTaskManager extends FileBackedTasksManager {
        key_history = "history";
        kvTaskClient = new KVTaskClient();
        gson = Managers.getGson();
-       gson.serializeNulls();
     }
 
     @Override
@@ -47,26 +44,23 @@ public class HttpTaskManager extends FileBackedTasksManager {
        }
     }
 
-    public Optional<String> load() throws IOException, InterruptedException {
+    public void load() throws IOException, InterruptedException {
         try {
-            String tasksMapJSON = kvTaskClient.load(key_tasks);
-            String epicsMapJSON = kvTaskClient.load(key_epics);
-            String subtasksMapJSON = kvTaskClient.load(key_subtasks);
-            String historyListJSON = kvTaskClient.load(key_history);
-            if (tasksMapJSON != null || !tasksMapJSON.isBlank()) {
-                this.tasksMap = gson.fromJson(tasksMapJSON, new TypeToken<Map<Integer, Task>>() {}.getType());
+            Optional<String> tasksMapJSON = kvTaskClient.load(key_tasks);
+            Optional<String> epicsMapJSON = kvTaskClient.load(key_epics);
+            Optional<String> subtasksMapJSON = kvTaskClient.load(key_subtasks);
+            Optional<String> historyListJSON = kvTaskClient.load(key_history);
+            if (tasksMapJSON.isPresent()) {
+                this.tasksMap = gson.fromJson(tasksMapJSON.get(), new TypeToken<Map<Integer, Task>>() {}.getType());
             }
-            if (epicsMapJSON != null || !epicsMapJSON.isBlank()) {
-                this.epicsMap = gson.fromJson(epicsMapJSON, new TypeToken<Map<Integer, Epic>>() {}.getType());
+            if (epicsMapJSON.isPresent()) {
+                this.epicsMap = gson.fromJson(epicsMapJSON.get(), new TypeToken<Map<Integer, Epic>>() {}.getType());
             }
-            if (subtasksMapJSON != null || !subtasksMapJSON.isBlank()) {
-                this.subtasksMap = gson.fromJson(subtasksMapJSON, new TypeToken<Map<Integer, Subtask>>() {
-                }.getType());
+            if (subtasksMapJSON.isPresent()) {
+                this.subtasksMap = gson.fromJson(subtasksMapJSON.get(), new TypeToken<Map<Integer, Subtask>>() {}.getType());
             }
-            if (historyListJSON != null || !historyListJSON.isBlank()) {
-                Type historyListType = new TypeToken<List<Task>>() {
-                }.getType();
-                List<Task> historyList = gson.fromJson(historyListJSON, historyListType);
+            if (historyListJSON.isPresent()) {
+                List<Task> historyList = gson.fromJson(historyListJSON.get(), new TypeToken<List<Task>>() {}.getType());
                 for (Task task : historyList) {
                     historyManager.add(task);
                 }
@@ -74,8 +68,36 @@ public class HttpTaskManager extends FileBackedTasksManager {
         } catch (IOException e) {
             e.getMessage();
         }
-
-
-        return null;
     }
+//    private <T> Task[] mapToArray(Map<Integer, T> taskMap) {
+//        Collection<Task> tasks = (Collection<Task>) taskMap.values();
+//        Task[] taskArray = tasks.toArray(new Task[0]);
+//        return taskArray;
+//    }
+//
+//    private <T extends Task> void mapFromArray(T[] taskArray) {
+//        String type = taskArray[0].getType();
+//        switch (type) {
+//            case "Task": {
+//                for (T task : taskArray) {
+//                    this.tasksMap.put(task.getTaskID(), task);
+//                }
+//                break;
+//            }
+//
+//            case "Epic:": {
+//                for (T task : taskArray) {
+//                    this.epicsMap.put(task.getTaskID(), (Epic) task);
+//                }
+//                break;
+//            }
+//
+//            case "Subtask": {
+//                for (T task : taskArray) {
+//                    this.subtasksMap.put(task.getTaskID(), (Subtask) task);
+//                }
+//                break;
+//            }
+//        }
+//    }
 }

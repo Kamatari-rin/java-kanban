@@ -2,8 +2,6 @@ package http;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -28,7 +26,7 @@ public class KVTaskClient {
         }
     }
 
-    public String load(String key) throws IOException, InterruptedException {
+    public Optional<String> load(String key) throws IOException, InterruptedException {
         String token = getToken();
         URI url = URI.create("http://localhost:8078/load/" + key + "?API_TOKEN="+ token + "/");
         HttpRequest request = HttpRequest.newBuilder()
@@ -36,7 +34,7 @@ public class KVTaskClient {
                 .GET()
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        return response.body();
+        return Optional.ofNullable(response.body());
     }
 
     private String getToken() throws IOException, InterruptedException {

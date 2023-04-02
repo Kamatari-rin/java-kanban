@@ -37,10 +37,6 @@ public class Epic extends Task{
         return taskID + ",Epic," + taskName + "," + taskStatus + "," + taskDescription + ",";
     }
 
-    public Duration getEpicDuration() {
-        return taskDuration;
-    }
-
     public void setEpicDuration(Duration duration) {
         this.taskDuration = duration;
     }

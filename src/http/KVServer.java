@@ -1,42 +1,36 @@
 package http;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import com.google.gson.Gson;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
+import services.taskmanagers.Constants;
+import services.taskmanagers.Managers;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.net.URI;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gson.Gson;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpServer;
-import services.taskmanagers.Managers;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
-/**
- * Постман: https://www.getpostman.com/collections/a83b61d9e1c81c10575c
- */
 
 public class KVServer {
-    public static final int PORT = 8078;
-    private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
     private final String apiToken;
     private final HttpServer server;
     private final Map<String, String> data = new HashMap<>();
+    private Gson gson;
 
     public KVServer() throws IOException {
         apiToken = generateApiToken();
-        server = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
+        server = HttpServer.create(new InetSocketAddress("localhost", Constants.PORT_KVSERVER), 0);
         server.createContext("/register", this::register);
         server.createContext("/save", this::save);
         server.createContext("/load", this::load);
+        gson = Managers.getGson();
     }
 
     private void load(HttpExchange h) throws IOException {
-        Gson gson = Managers.getGson();
         try {
             if (!hasAuth(h)) {
                 System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
@@ -113,14 +107,14 @@ public class KVServer {
     }
 
     public void start() {
-        System.out.println("Запускаем сервер на порту " + PORT);
-        System.out.println("Открой в браузере http://localhost:" + PORT + "/");
+        System.out.println("Запускаем сервер на порту " + Constants.PORT_KVSERVER);
+        System.out.println("Открой в браузере http://localhost:" + Constants.PORT_KVSERVER + "/");
         System.out.println("API_TOKEN: " + apiToken);
         server.start();
     }
 
     public void stop(int delay) {
-        System.out.println("Останавливаем сервер на порту " + PORT);
+        System.out.println("Останавливаем сервер на порту " + Constants.PORT_KVSERVER);
         server.stop(delay);
     }
 
@@ -150,7 +144,7 @@ public class KVServer {
         if (responseString.isBlank()) {
             exchange.sendResponseHeaders(responseCode, 0);
         } else {
-            byte[] bytes = responseString.getBytes(DEFAULT_CHARSET);
+            byte[] bytes = responseString.getBytes(Constants.DEFAULT_CHARSET);
             exchange.sendResponseHeaders(responseCode, bytes.length);
             try (OutputStream os = exchange.getResponseBody()) {
                 os.write(bytes);

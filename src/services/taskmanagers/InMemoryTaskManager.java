@@ -228,7 +228,7 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
 
         for (Integer subtaskID : subtasksList) {
             Subtask subtask = subtasksMap.get(subtaskID);
-            Duration duration = epic.getEpicDuration().plus(subtask.getSubtaskDuration());
+            Duration duration = epic.getTaskDuration().plus(subtask.getTaskDuration());
             epic.setEpicDuration(duration);
         }
     }
@@ -240,7 +240,7 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
             Subtask subtask = subtasksMap.get(subtaskID);
             if (epic.getTaskStartTime() == null || epic.getTaskStartTime().isAfter(subtask.getTaskStartTime())) {
                 epic.setTaskStartTime(subtask.getTaskStartTime());
-                epic.setZoneID(subtask.getSubtaskZoneID());
+                epic.setZoneID(subtask.getZone());
             }
             if (epic.getGetTaskEndTime() == null || epic.getGetTaskEndTime().isAfter(subtask.getGetTaskEndTime())) {
                 epic.setGetTaskEndTime(subtask.getGetTaskEndTime());
@@ -361,4 +361,5 @@ public class InMemoryTaskManager<T extends Task> implements TaskManager<T> {
     public Set<Task> getPrioritizedTasks() {
         return prioritizedTasks;
     }
+
 }
