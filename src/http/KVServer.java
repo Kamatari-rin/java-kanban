@@ -40,17 +40,13 @@ public class KVServer {
             String path = h.getRequestURI().getPath();
 
             if (path.contains("tasks")) {
-                String tasksMap = data.get("tasks");
-                writeResponse(h, gson.toJson(tasksMap), 200);
+                writeResponse(h, data.get("tasks"), 200);
             } else if (path.contains("epics")) {
-                String epicsMap = data.get("epics");
-                writeResponse(h, gson.toJson(epicsMap), 200);
+                writeResponse(h, data.get("epics"), 200);
             } else if (path.contains("subtasks")) {
-                String subtasksMap = data.get("subtasks");
-                writeResponse(h, gson.toJson(subtasksMap), 200);
+                writeResponse(h, data.get("subtasks"), 200);
             } else if (path.contains("history")) {
-                String history = data.get("history");
-                writeResponse(h, gson.toJson(history), 200);
+                writeResponse(h, data.get("history"), 200);
             }
         } catch (Exception e) {
             writeResponse(h, "ошибка", 200);;
