@@ -19,6 +19,7 @@ import java.util.*;
 
 import static java.time.Month.JANUARY;
 import static java.util.Calendar.JULY;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class HttpTaskManagerTest {
     private final int PORT = 8080;
@@ -103,7 +104,15 @@ class HttpTaskManagerTest {
 
 //////////////////////////////////// Востанавливаемся из KVServer //////////////////////////////////////////////////////
 
-        // Не пойму как востановиться из данных на сервере.
         new HttpTaskManager().load();
+        final Map<Integer, Task> taskMap = Collections.unmodifiableMap(taskManager.getAllTask());
+        final Map<Integer, Task> epicsMap = Collections.unmodifiableMap(taskManager.getAllEpic());
+        final Map<Integer, Task> subtaskMap = Collections.unmodifiableMap(taskManager.getAllSubtask());
+        final List<Task> historyList = taskManager.getHistory();
+
+        assertEquals(controlTaskMap, taskMap, "Списки задач не совпадают.");
+        assertEquals(controlEpicsMap, epicsMap, "Списки задач не совпадают.");
+        assertEquals(controlSubtaskMap, subtaskMap, "Списки задач не совпадают.");
+        assertEquals(controlHisoryList, historyList, "История не совпадает.");
     }
 }
